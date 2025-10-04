@@ -6,7 +6,7 @@
 				<input-dialog v-model="showDialog" title="远程导入题库" placeholder="请输入题库地址" @confirm="onInputConfirm"
 					@cancel="onInputCancel" />
 				<button>本地导入题库</button>
-				<button>选择题库</button>
+				<button @click="c_select_tk">选择题库</button>
 
 			</view>
 		</view>
@@ -60,7 +60,8 @@
 	//====缓存相关====
 	g.CacheDir = g.getCachePath() + "/../tiku"
 	g.MkdirAll(g.CacheDir)
-	g.w_file(g.CacheDir + "/aa.json", "aaaaa")
+
+	// g.downloadFile("https://gitee.com/asters1/tkgf/raw/master/tk/tk.json")
 
 	//======弹窗开始=====
 	const showDialog = ref(false)
@@ -68,16 +69,29 @@
 		showDialog.value = true
 	}
 	const onInputConfirm = (value) => {
-		console.log(value)
+		g.downloadFile(value)
+
 	}
 	const onInputCancel = () => {
 		console.log('用户点击了取消')
+	}
+	//点击按钮查看题库
+	const c_select_tk = () => {
+		g.get_tks_path(g.CacheDir).then(files => {
+				console.log('找到的JSON文件:', JSON.stringify(files));
+				for (const f of files) {
+					console.log(f.fullPath)
+				}
+			})
+			.catch(err => {
+				g.ShowText('获取文件列表失败:' + err);
+			});
 	}
 	//======弹窗结束=====
 	const btn_click = (index) => {
 		this_index.value = index
 		g.index = index
-		console.log(g.index)
+		// console.log(g.index)
 		c_zhuye.value = ""
 		c_lianxi.value = ""
 		c_cuoti.value = ""
