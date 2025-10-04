@@ -58,8 +58,9 @@
 	const this_index = ref(0)
 
 	//====缓存相关====
-
-	g.MkdirAll(g.getCachePath() + "/../tiku")
+	g.CacheDir = g.getCachePath() + "/../tiku"
+	g.MkdirAll(g.CacheDir)
+	g.w_file(g.CacheDir + "/aa.json", "aaaaa")
 
 	//======弹窗开始=====
 	const showDialog = ref(false)

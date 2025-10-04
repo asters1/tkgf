@@ -3,6 +3,7 @@
 const g = {
 	"index": 0,
 	"status": 0,
+	"CacheDir":"",
 	"ShowText": function(text) {
 		console.log(text)
 		uni.showToast({
@@ -38,6 +39,31 @@ const g = {
 				reject(e);
 			}
 		});
+	},
+	"w_file": function(filePath, content) {
+		// g.ShowText("==")
+		g.ShowText(filePath)
+		// g.ShowText("==")
+		// 文件不存在，先创建文件再写入
+		const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+		const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+	   // 获取沙箱目录路径
+	     filePath = plus.io.convertLocalFileSystemURL(filePath);
+	    
+	    plus.io.requestFileSystem(plus.io.PRIVATE_WWW, function(fs) {
+	        fs.root.getFile(filePath, { create: true }, function(fileEntry) {
+	            fileEntry.createWriter(function(writer) {
+	                writer.onwriteend = function(e) {
+	                    console.log('写入成功');
+	                };
+	                writer.onerror = function(e) {
+	                    console.error('写入失败：' + e.toString());
+	                };
+	                writer.write('你要写入的内容');
+	            });
+	        });
+	    });
+
 	},
 	"requests": function(obj) {
 
