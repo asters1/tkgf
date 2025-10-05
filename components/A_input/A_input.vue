@@ -3,7 +3,7 @@
 		<view class="nav-btn">
 
 			<text :class="iconClassString"></text>
-			<text>{{btn_text}}</text>
+			<text :class="textClassString">{{btn_text}}</text>
 		</view>
 	</view>
 </template>
@@ -14,6 +14,7 @@
 	} from 'vue'
 	const btn_text = ref(""); // 初始值为"主页"
 	const iconClassString = ref("")
+	const textClassString = ref("")
 
 	const SetBtnText = (text) => {
 
@@ -24,10 +25,14 @@
 		text = "icon_sym " + text
 		iconClassString.value = text
 	};
+	const SetTextClass=(text)=>{
+		textClassString.value=text
+	}
 	// SetClassString("icon_sym icon-grid-view")
 	defineExpose({
 		SetBtnText,
-		SetClassString
+		SetClassString,
+		SetTextClass
 	})
 </script>
 
@@ -38,6 +43,7 @@
 		display: inline-block;
 		width: 40px;
 		height: 40px;
+		color:red;
 		background-repeat: no-repeat;
 		background-position: center;
 		background-size: 100%;
@@ -64,5 +70,8 @@
 		font-size: 24px;
 		padding: 8px 0;
 		transition: all 0.2s;
+	}
+	.select_text{
+		color:#1296db
 	}
 </style>

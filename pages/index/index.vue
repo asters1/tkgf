@@ -1,12 +1,15 @@
 <template>
 	<view class="container">
 		<view class="content">
-			<view class="btns" v-if="this_index ===0 ">
-				<button size="default" @click="c_btn">远程导入题库</button>
-				<input-dialog v-model="showDialog" title="远程导入题库" placeholder="请输入题库地址" @confirm="onInputConfirm"
-					@cancel="onInputCancel" />
-				<button>本地导入题库</button>
-				<button @click="c_select_tk">选择题库</button>
+			<view class="body1" v-if="this_index ===0 ">
+				<view class="body1_head">
+					<text class="item_body1_head icon_sym icon-icon-download2" @click="c_download"></text>
+					<text class="item_body1_head icon_sym icon-folder" @click="c_download"></text>
+					<input-dialog v-model="showDialog" title="远程导入题库" placeholder="请输入题库地址" @confirm="onInputConfirm"
+						@cancel="onInputCancel" />
+					<!-- <text>aaaa</text> -->
+				</view>
+				<view class="fgx"></view>
 
 			</view>
 		</view>
@@ -45,10 +48,12 @@
 		onReady
 	} from '@dcloudio/uni-app'
 	import g from '@/common/global'
+
 	const zhuye = ref(null)
 	const lianxi = ref(null)
 	const cuoti = ref(null)
 	const shoucang = ref(null)
+
 
 	const c_zhuye = ref("")
 	const c_lianxi = ref("")
@@ -65,7 +70,7 @@
 
 	//======弹窗开始=====
 	const showDialog = ref(false)
-	const c_btn = () => {
+	const c_download = () => {
 		showDialog.value = true
 	}
 	const onInputConfirm = (value) => {
@@ -88,6 +93,11 @@
 			});
 	}
 	//======弹窗结束=====
+	const head_btn_click = (index) => {
+		c_download.value = "icon_sym icon-icon-download2"
+		c_download.value = "icon_sym icon-icon-download2-copy"
+
+	}
 	const btn_click = (index) => {
 		this_index.value = index
 		g.index = index
@@ -96,18 +106,36 @@
 		c_lianxi.value = ""
 		c_cuoti.value = ""
 		c_shoucang.value = ""
+
+		zhuye.value.SetClassString("icon-icon-menu")
+		lianxi.value.SetClassString("icon-icon-edit2")
+		cuoti.value.SetClassString("icon-icon-error")
+		shoucang.value.SetClassString("icon-icon-star")
+
+		zhuye.value.SetTextClass("")
+		lianxi.value.SetTextClass("")
+		cuoti.value.SetTextClass("")
+		shoucang.value.SetTextClass("")
 		switch (index) {
 			case 0:
 				c_zhuye.value = "select_btn"
+				zhuye.value.SetClassString("icon-icon-menu-copy")
+				zhuye.value.SetTextClass("select_text")
 				break;
 			case 1:
+				lianxi.value.SetClassString("icon-icon-edit2-copy")
 				c_lianxi.value = "select_btn"
+				lianxi.value.SetTextClass("select_text")
 				break;
 			case 2:
+				cuoti.value.SetClassString("icon-icon-error-copy")
 				c_cuoti.value = "select_btn"
+				cuoti.value.SetTextClass("select_text")
 				break;
 			case 3:
+				shoucang.value.SetClassString("icon-icon-star-copy")
 				c_shoucang.value = "select_btn"
+				shoucang.value.SetTextClass("select_text")
 				break;
 
 		}
@@ -121,46 +149,51 @@
 	onReady(() => {
 		console.log('页面渲染完成')
 		zhuye.value.SetBtnText('主页');
-		zhuye.value.SetClassString("icon-grid-view")
+		zhuye.value.SetClassString("icon-icon-menu")
 		lianxi.value.SetBtnText('练习');
-		lianxi.value.SetClassString("icon-to-deliver")
+		lianxi.value.SetClassString("icon-icon-edit2")
 		cuoti.value.SetBtnText('错题');
-		cuoti.value.SetClassString("icon-close")
+		cuoti.value.SetClassString("icon-icon-error")
 		shoucang.value.SetBtnText('收藏');
-		shoucang.value.SetClassString("icon-save")
+		shoucang.value.SetClassString("icon-icon-star")
 		// console.log(g.index)
 		btn_click(g.index)
 	})
 </script>
 
 <style>
-	.container {
-		/* 		position: fixed;
-		display: flex;
-		
-		flex-direction: column; */
+	@import "../../static/icon.css";
 
-		/* 		width: 100%;
-		max-width: 500px;
-		margin: 0 auto;
-		background-color: var(--card-bg);
-		
-		min-height: 10vh;
-		position: relative;
-		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+	.icon_sym {
+		display: inline-block;
+		width: 40px;
+		height: 40px;
+		color: red;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%;
+		/* margin-left: 20px; */
+		/* padding: 40px; */
 	}
 
-	.btns {
-		padding-top: 100px;
+	.container {}
+
+	.body1 {
+		padding-top: 30px;
 		/* position: fixed; */
 		display: flex;
 		flex-direction: column;
-		align-items: center;
+
 		justify-content: center;
-		/* //调整间距 */
-		gap: 30px
+
 	}
 
+	.body1_head {
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-end;
+		/* 水平靠左 */
+	}
 
 
 	.nav_bar {
@@ -189,5 +222,16 @@
 
 		/* background-color: #eee; */
 
+	}
+
+	.item_body1_head {
+
+	margin-right: 20px;
+
+	}
+	.fgx{
+		padding-top: 10px;
+		border-bottom: 1px solid #777;
+		
 	}
 </style>
