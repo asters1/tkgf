@@ -4,14 +4,64 @@
 			<view class="body1" v-if="this_index ===0 ">
 				<view class="body1_head">
 					<text class="item_body1_head icon_sym icon-icon-download2" @click="c_download"></text>
-					<text class="item_body1_head icon_sym icon-folder" @click="c_download"></text>
+					<text class="item_body1_head icon_sym icon-folder" @click="c_local"></text>
+					<text class="item_body1_head icon_sym icon-icon-delete" @click="c_delete"></text>
 					<input-dialog v-model="showDialog" title="远程导入题库" placeholder="请输入题库地址" @confirm="onInputConfirm"
 						@cancel="onInputCancel" />
 					<!-- <text>aaaa</text> -->
 				</view>
 				<view class="fgx"></view>
+				<view class="body1_content">
+					<scroll-view scroll-y="true" class="scroll-container">
+						<!-- 这里放需要滚动的内容 -->
+						<view v-for="item in tk_items" :key="item" class="item"
+							:class="{ active: body1_activeId === item.id }" :value="item.value"
+							@click="itemClick(item.id)">
+							{{ item.name }}
+						</view>
+						<view style="padding: 100px;"></view>
 
+					</scroll-view>
+
+
+				</view>
 			</view>
+		</view>
+		<view class="body2" v-if="this_index ===1 ">
+			<view class="body2_head">
+				<view>{{tk_index+1}}/{{tk_total}}</view>
+			</view>
+			<view style="padding: 10px;"></view>
+			<view class="body2_head">
+				<button @click="btn_jixu">继续练习</button>
+				<button @click="btn_shunxu">顺序练习 </button>
+				<button @click="btn_suiji">随机练习</button>
+			</view>
+
+			<view class="fgx"></view>
+			<view class="question">
+				<view class="question_type">{{text_question_type}}</view>
+				<view style="padding: 5px;"></view>
+				{{text_question}}
+			</view>
+			<view class="option">
+				<view v-for="o in options" :key="o" class="option1">{{ o.n }}. {{o.v}}</view>
+			</view>
+			<view style="padding: 5px;"></view>
+			<view class="answer">
+				<view class="answer_icon">{{text_answer_icon}}</view>{{text_answer}}
+			</view>
+			<view class="analysis">
+				<view style="padding: 5px;"></view>
+				<view class="analysis_icon">{{text_analysis_icon}}</view>{{text_analysis}}
+			</view>
+
+			<view class="body2_select_ti">
+				<button @click="btn_shangyiti">上一题</button>
+				<button @click="btn_shoucangbenti">收藏本题</button>
+				<button @click="btn_xiayiti">下一题</button>
+			</view>
+
 		</view>
 		<!-- ============以下勿动================= -->
 		<!-- <view class="btn_click" @click="icon_click"> -->
@@ -40,7 +90,8 @@
 	import {
 		ref,
 		reactive,
-		nextTick
+		nextTick,
+		onMounted
 	} from 'vue'
 
 	import InputDialog from '@/components/input-dialog/input-dialog.vue'
@@ -48,7 +99,9 @@
 		onReady
 	} from '@dcloudio/uni-app'
 	import g from '@/common/global'
-
+	const a_z = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S",
+		"T", "U", "V", "W", "X", "Y", "Z"
+	];
 	const zhuye = ref(null)
 	const lianxi = ref(null)
 	const cuoti = ref(null)
@@ -60,12 +113,110 @@
 	const c_cuoti = ref("")
 	const c_shoucang = ref("")
 
+	const tk_items = ref([])
+	// 状态：当前选中的 item.id
+	const body1_activeId = ref(null);
+	// const tks = ref(null);
+
 	const this_index = ref(0)
+	this_index.value = 1
+	this_index.value = 2
+	this_index.value = 3
+	this_index.value = 0
+	//=======body2=======
+	const tk_index = ref(0)
+	const tk_total = ref(0)
+	//题目
+	const text_question = ref("")
+	//选项
+	const text_option = ref("")
+	//答案
+	const text_answer = ref("")
+	//解析
+	const text_analysis = ref("")
+	//[题目类型]
+	const text_question_type = ref("")
+	//[答案】
+	const text_answer_icon = ref("")
+	//[解析]
+	const text_analysis_icon = ref("")
+	const options = ref([])
+
+	//=====body2结束=======
+
+
 
 	//====缓存相关====
 	g.CacheDir = g.getCachePath() + "/../tiku"
 	g.MkdirAll(g.CacheDir)
+	//==获取题库===
+	//刷新列表
+	const get_tk = () => {
+		tk_items.value = []
+		g.get_tks_path(g.CacheDir).then(result => {
+			// g.ShowText(JSON.stringify(result[0]));
+			// g.ShowText(result.length)
+			// tk_items.value=result/
+			for (let i = 0; i < result.length; i++) {
+				// g.ShowText(JSON.stringify(result[i]))
+				let obj = {
+					"name": result[i].name.replace('.json', ''),
+					"value": result[i].fullPath,
+					"id": i
+				}
+				tk_items.value.push(obj)
+			}
+		});
 
+	}
+	get_tk()
+	const update_data = () => {
+
+
+		if (g.tk[tk_index.value].type === 1) {
+			text_question_type.value = "[单选题]"
+		} else if (g.tk[tk_index.value].type === 2) {
+			text_question_type.value = "[多选题]"
+		} else if (g.tk[tk_index.value].type === 3) {
+			text_question_type.value = "[判断题]"
+		}
+		text_question.value = g.tk[tk_index.value].question
+		options.value = []
+
+		if (g.tk[tk_index.value].option.total > 0) {
+			text_answer_icon.value = ""
+			text_answer.value = ""
+			text_analysis_icon.value = ""
+			text_analysis.value = ""
+			let istrue=false
+			let i = 0;
+			while (i < a_z.length) {
+				if (g.tk[tk_index.value].option[a_z[i]] === undefined) {
+					break
+				}
+				
+				for (let j = 0; i < g.tk[tk_index.value].answer.length; j++) {
+					if (g.tk[tk_index.value].answer[j]===a_z[i]){
+						
+						istrue=true
+					}
+					
+				}
+				// options.value.push(a_z[i] + ". " + g.tk[tk_index.value].option[a_z[i]])
+				let op1={
+					"n":a_z[i],
+					"v":g.tk[tk_index.value].option[a_z[i]],
+					"istrue":istrue
+				}
+				options.value.push(op1)
+				i++
+			}
+
+
+
+		}
+	}
+	//=获取题库结束=
 	// g.downloadFile("https://gitee.com/asters1/tkgf/raw/master/tk/tk.json")
 
 	//======弹窗开始=====
@@ -75,24 +226,43 @@
 	}
 	const onInputConfirm = (value) => {
 		g.downloadFile(value)
+		get_tk()
 
 	}
 	const onInputCancel = () => {
 		console.log('用户点击了取消')
 	}
-	//点击按钮查看题库
-	const c_select_tk = () => {
-		g.get_tks_path(g.CacheDir).then(files => {
-				console.log('找到的JSON文件:', JSON.stringify(files));
-				for (const f of files) {
-					console.log(f.fullPath)
-				}
-			})
-			.catch(err => {
-				g.ShowText('获取文件列表失败:' + err);
-			});
+	const c_local = () => {
+		g.ShowText("本地加载功能正在开发，敬请期待~")
+		get_tk()
+
 	}
+	const c_delete = () => {
+		g.ShowText("删除功能正在开发，敬请期待~")
+		get_tk()
+	}
+
+
 	//======弹窗结束=====
+	const itemClick = (id) => {
+		body1_activeId.value = id
+		g.Select_tiku_path = tk_items.value[id].value
+		g.ShowText(g.Select_tiku_path)
+
+		g.R_file(g.Select_tiku_path).then(result => {
+			try {
+				g.tk = JSON.parse(result)
+			} catch {
+				g.ShowText("转化题库失败")
+
+			}
+
+		})
+
+
+
+
+	}
 	const head_btn_click = (index) => {
 		c_download.value = "icon_sym icon-icon-download2"
 		c_download.value = "icon_sym icon-icon-download2-copy"
@@ -126,6 +296,13 @@
 				lianxi.value.SetClassString("icon-icon-edit2-copy")
 				c_lianxi.value = "select_btn"
 				lianxi.value.SetTextClass("select_text")
+				if (g.Select_tiku_path === "") {
+					g.ShowText("还未选择题库，请去选择题库~")
+				}
+
+
+
+
 				break;
 			case 2:
 				cuoti.value.SetClassString("icon-icon-error-copy")
@@ -147,6 +324,7 @@
 
 	// 直接使用 UniApp 的页面生命周期
 	onReady(() => {
+
 		console.log('页面渲染完成')
 		zhuye.value.SetBtnText('主页');
 		zhuye.value.SetClassString("icon-icon-menu")
@@ -158,7 +336,71 @@
 		shoucang.value.SetClassString("icon-icon-star")
 		// console.log(g.index)
 		btn_click(g.index)
+
 	})
+	const btn_jixu = () => {
+		// g.ShowText("继续练习")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+			g.ShowText("功能正在开发，敬请期待~")
+
+		}
+
+	}
+	const btn_shunxu = () => {
+		// g.ShowText("顺序练习")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+			tk_index.value = 0
+			console.log(g.tk.length)
+			tk_total.value = g.tk.length
+			update_data()
+
+		}
+
+	}
+	const btn_suiji = () => {
+		// g.ShowText("随机练习")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+
+
+		}
+
+	}
+	const btn_shangyiti = () => {
+		// g.ShowText("上一题")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+
+
+		}
+
+	}
+	const btn_shoucangbenti = () => {
+		// g.ShowText("收藏本题")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+
+
+		}
+
+	}
+	const btn_xiayiti = () => {
+		// g.ShowText("下一题")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+
+
+		}
+
+	}
 </script>
 
 <style>
@@ -195,6 +437,25 @@
 		/* 水平靠左 */
 	}
 
+	.scroll-container {
+		height: 650px;
+		/* 必须设置固定高度，否则无法滚动 */
+		border: 1px solid #eee;
+		scrollbar-width: none;
+		width: 99%;
+
+
+	}
+
+	.item {
+		padding: 20px;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.item.active {
+		background-color: #57CB37;
+		/* 高亮颜色 */
+	}
 
 	.nav_bar {
 		position: fixed;
@@ -206,15 +467,19 @@
 		display: flex;
 		background: white;
 
-		box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+		/* box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1); */
 		z-index: 1000;
-		max-width: 400px;
+		/* max-width: 400px; */
 		margin: 0 auto;
-		/* border-top: 1px solid #f0f0f0; */
+		border-top: 1px solid #777;
 		justify-content: space-between;
 		padding: 5px 10px 5px 10px;
+
 		/* 左右添加内边距 */
-		background-color: transparent;
+		/* background-color: transparent; */
+		background-color: #fff;
+		padding-left: 30px;
+		padding-right: 30px;
 	}
 
 	.select_btn {
@@ -226,12 +491,42 @@
 
 	.item_body1_head {
 
-	margin-right: 20px;
+		margin-right: 20px;
 
 	}
-	.fgx{
+
+	.fgx {
 		padding-top: 10px;
 		border-bottom: 1px solid #777;
-		
+
+	}
+
+	.body2 {
+		margin-top: 30px;
+		margin-left: 15px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.body2_head {
+		display: flex;
+		flex-direction: row;
+
+	}
+
+	.body2_select_ti {
+		position: fixed;
+		/* 关键：保持固定定位 */
+		bottom: 0;
+		/* 关键：必须设置为0才能固定在底部 */
+		left: 0;
+		right: 0;
+		display: flex;
+		flex-direction: row;
+		margin-bottom: 100px;
+
+	}
+	.option1{
+		margin-top: 10px;
 	}
 </style>

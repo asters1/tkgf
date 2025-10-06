@@ -84,6 +84,7 @@ const confirm = () => {
 .dialog-content {
   background-color: #fff;
   width: 80%;
+margin-bottom: 300px;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -109,6 +110,7 @@ const confirm = () => {
 }
 
 .dialog-footer {
+	
   display: flex;
   border-top: 1px solid #eee;
 }

@@ -41,8 +41,8 @@
 
 	.icon_sym {
 		display: inline-block;
-		width: 40px;
-		height: 40px;
+		width: 30px;
+		height: 30px;
 		color:red;
 		background-repeat: no-repeat;
 		background-position: center;
@@ -67,7 +67,7 @@
 		align-items: center;
 		color: #666;
 		text-decoration: none;
-		font-size: 24px;
+		font-size: 20px;
 		padding: 8px 0;
 		transition: all 0.2s;
 	}

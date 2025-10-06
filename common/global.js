@@ -4,6 +4,8 @@ const g = {
 	"index": 0,
 	"status": 0,
 	"CacheDir": "",
+	"Select_tiku_path": "",
+	"tk":{},
 	"ShowText": function(text) {
 		console.log(text)
 		uni.showToast({
@@ -119,6 +121,7 @@ const g = {
 		});
 	},
 	"mv_file": function(oldPath, newPath) {
+
 		return new Promise((resolve, reject) => {
 			plus.io.resolveLocalFileSystemURL(oldPath, (entry) => {
 					plus.io.resolveLocalFileSystemURL(newPath.substring(0, newPath.lastIndexOf(
@@ -158,9 +161,10 @@ const g = {
 			});
 		});
 	},
+
 	"downloadFile": function(url) {
 
-		const fileName = url.substring(url.lastIndexOf('/') + 1);
+		const fileName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
 		uni.downloadFile({
 			url: url, // 下载地址
 			header: {
