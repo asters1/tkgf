@@ -188,25 +188,25 @@
 			text_answer.value = ""
 			text_analysis_icon.value = ""
 			text_analysis.value = ""
-			let istrue=false
+			let istrue = false
 			let i = 0;
 			while (i < a_z.length) {
 				if (g.tk[tk_index.value].option[a_z[i]] === undefined) {
 					break
 				}
-				
-				for (let j = 0; i < g.tk[tk_index.value].answer.length; j++) {
-					if (g.tk[tk_index.value].answer[j]===a_z[i]){
-						
-						istrue=true
+
+				for (let j = 0; j < g.tk[tk_index.value].answer.length; j++) {
+					if (g.tk[tk_index.value].answer[j] === a_z[i]) {
+
+						istrue = true
 					}
-					
+
 				}
 				// options.value.push(a_z[i] + ". " + g.tk[tk_index.value].option[a_z[i]])
-				let op1={
-					"n":a_z[i],
-					"v":g.tk[tk_index.value].option[a_z[i]],
-					"istrue":istrue
+				let op1 = {
+					"n": a_z[i],
+					"v": g.tk[tk_index.value].option[a_z[i]],
+					"istrue": istrue
 				}
 				options.value.push(op1)
 				i++
@@ -215,6 +215,7 @@
 
 
 		}
+		console.log(options.value)
 	}
 	//=获取题库结束=
 	// g.downloadFile("https://gitee.com/asters1/tkgf/raw/master/tk/tk.json")
@@ -357,6 +358,7 @@
 			console.log(g.tk.length)
 			tk_total.value = g.tk.length
 			update_data()
+			g.ShowText(options.value)
 
 		}
 
@@ -526,7 +528,8 @@
 		margin-bottom: 100px;
 
 	}
-	.option1{
+
+	.option1 {
 		margin-top: 10px;
 	}
 </style>
