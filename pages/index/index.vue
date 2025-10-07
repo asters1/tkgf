@@ -35,7 +35,10 @@
 			<view class="body2_head">
 				<button @click="btn_jixu">继续练习</button>
 				<button @click="btn_shunxu">顺序练习 </button>
+				<button @click="btn_tiaozhuan">跳转练习 </button>
 				<button @click="btn_suiji">随机练习</button>
+				<input-dialog v-model="showDialog_tiaozhuan" title="跳转题目顺序练习" placeholder="请输入第几题"
+					@confirm="input_tk_index" @cancel="onInputCancel" />
 			</view>
 
 			<view class="fgx"></view>
@@ -45,8 +48,13 @@
 				{{text_question}}
 			</view>
 			<view class="option">
-				<view v-for="o in options" :key="o" class="option1">{{ o.n }}. {{o.v}}</view>
+				<view v-for="(o,index) in options" :key="o"
+					:class="['option1',{'answer_active':select_Items[index],'iserror':select_Items[index]&&!o.istrue&&click_enter,'istrue':o.istrue&&click_enter}]"
+					@click="toggleItem(index)">{{ o.n }}. {{o.v}}
+				</view>
 			</view>
+
+
 			<view style="padding: 5px;"></view>
 			<view class="answer">
 				<view class="answer_icon">{{text_answer_icon}}</view>{{text_answer}}
@@ -54,14 +62,19 @@
 			<view class="analysis">
 				<view style="padding: 5px;"></view>
 				<view class="analysis_icon">{{text_analysis_icon}}</view>{{text_analysis}}
+				<view style="padding:200px"></view>
 			</view>
+			<view class="body_bottom">
 
-			<view class="body2_select_ti">
-				<button @click="btn_shangyiti">上一题</button>
-				<button @click="btn_shoucangbenti">收藏本题</button>
-				<button @click="btn_xiayiti">下一题</button>
+				<button class="btn_enter" @click="btn_enter">确&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;定</button>
+
+
+				<view class="body2_select_ti">
+					<button @click="btn_shangyiti">上一题</button>
+					<button @click="btn_shoucangbenti">收藏本题</button>
+					<button @click="btn_xiayiti">下一题</button>
+				</view>
 			</view>
-
 		</view>
 		<!-- ============以下勿动================= -->
 		<!-- <view class="btn_click" @click="icon_click"> -->
@@ -141,6 +154,11 @@
 	//[解析]
 	const text_analysis_icon = ref("")
 	const options = ref([])
+	//答案数组
+	const select_Items = ref([])
+	const click_enter = ref(false)
+	const iserror = ref(false)
+
 
 	//=====body2结束=======
 
@@ -188,9 +206,10 @@
 			text_answer.value = ""
 			text_analysis_icon.value = ""
 			text_analysis.value = ""
-			let istrue = false
+
 			let i = 0;
 			while (i < a_z.length) {
+				let istrue = false
 				if (g.tk[tk_index.value].option[a_z[i]] === undefined) {
 					break
 				}
@@ -199,6 +218,7 @@
 					if (g.tk[tk_index.value].answer[j] === a_z[i]) {
 
 						istrue = true
+
 					}
 
 				}
@@ -215,15 +235,36 @@
 
 
 		}
-		console.log(options.value)
+		// console.log(options.value)
 	}
 	//=获取题库结束=
 	// g.downloadFile("https://gitee.com/asters1/tkgf/raw/master/tk/tk.json")
 
 	//======弹窗开始=====
 	const showDialog = ref(false)
+	const showDialog_tiaozhuan = ref(false)
+
 	const c_download = () => {
 		showDialog.value = true
+	}
+	const input_tk_index = (value) => {
+
+
+		// g.ShowText("顺序练习")
+		if (g.Select_tiku_path === "") {
+			g.ShowText("还未选择题库，请去选择题库~")
+		} else {
+			if (isNaN(value)) {
+				g.ShowText("请输入数字~")
+			} else {
+				tk_index.value = Number(value) - 1
+			}
+
+			console.log(g.tk.length)
+			tk_total.value = g.tk.length
+			update_data()
+			// g.ShowText(options.value)
+		}
 	}
 	const onInputConfirm = (value) => {
 		g.downloadFile(value)
@@ -245,6 +286,10 @@
 
 
 	//======弹窗结束=====
+	const toggleItem = (index) => {
+		// g.ShowText(index)
+		select_Items.value[index] = !select_Items.value[index]
+	}
 	const itemClick = (id) => {
 		body1_activeId.value = id
 		g.Select_tiku_path = tk_items.value[id].value
@@ -349,6 +394,8 @@
 		}
 
 	}
+
+
 	const btn_shunxu = () => {
 		// g.ShowText("顺序练习")
 		if (g.Select_tiku_path === "") {
@@ -358,10 +405,13 @@
 			console.log(g.tk.length)
 			tk_total.value = g.tk.length
 			update_data()
-			g.ShowText(options.value)
+			// g.ShowText(options.value)
 
 		}
 
+	}
+	const btn_tiaozhuan = () => {
+		showDialog_tiaozhuan.value = true
 	}
 	const btn_suiji = () => {
 		// g.ShowText("随机练习")
@@ -373,13 +423,30 @@
 		}
 
 	}
+	const btn_enter = () => {
+		// g.ShowText("确定")
+		console.log("============================")
+		console.log(JSON.stringify(g.tk[tk_index.value]))
+		console.log("============================")
+		console.log(JSON.stringify(options.value))
+		click_enter.value = !click_enter.value
+		text_analysis_icon.value = "[解析]"
+		text_analysis.value = g.tk[tk_index.value].analysis
+	}
 	const btn_shangyiti = () => {
 		// g.ShowText("上一题")
 		if (g.Select_tiku_path === "") {
 			g.ShowText("还未选择题库，请去选择题库~")
 		} else {
-
-
+			if ((tk_index.value - 1) < 0) {
+				tk_index.value = 0
+			} else {
+				tk_index.value = tk_index.value - 1
+			}
+			text_analysis_icon.value = ""
+			text_analysis.value = ""
+			click_enter.value = false
+			update_data()
 		}
 
 	}
@@ -398,8 +465,16 @@
 		if (g.Select_tiku_path === "") {
 			g.ShowText("还未选择题库，请去选择题库~")
 		} else {
+			if (tk_index.value >= g.tk.length - 1) {
+				tk_index.value = g.tk.length - 1
+			} else {
+				tk_index.value = tk_index.value + 1
+			}
 
-
+			text_analysis_icon.value = ""
+			text_analysis.value = ""
+			click_enter.value = false
+			update_data()
 		}
 
 	}
@@ -516,7 +591,7 @@
 
 	}
 
-	.body2_select_ti {
+	.body_bottom {
 		position: fixed;
 		/* 关键：保持固定定位 */
 		bottom: 0;
@@ -524,12 +599,44 @@
 		left: 0;
 		right: 0;
 		display: flex;
-		flex-direction: row;
+		flex-direction: column;
 		margin-bottom: 100px;
+	}
 
+	.btn_enter {
+
+		width: 85%;
+		margin-bottom: 15px;
+	}
+
+	.body2_select_ti {
+
+		display: flex;
+		flex-direction: row;
 	}
 
 	.option1 {
 		margin-top: 10px;
+		margin-right: 10px;
+		padding: 10px
+	}
+
+	.answer_active {
+		background-color: #27B755;
+
+	}
+
+	.istrue {
+		background-color: #00CE26;
+
+	}
+
+	.iserror {
+		background-color: #F02E45;
+
+	}
+
+	.analysis_icon {
+		padding: 5px;
 	}
 </style>
