@@ -5,6 +5,7 @@ const g = {
 	"status": 0,
 	"CacheDir": "",
 	"Select_tiku_path": "",
+	"tk_fileName":"",
 	"tk":{},
 	"ShowText": function(text) {
 		console.log(text)

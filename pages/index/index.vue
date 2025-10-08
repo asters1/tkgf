@@ -71,7 +71,8 @@
 
 				<view class="body2_select_ti">
 					<button @click="btn_shangyiti">上一题</button>
-					<button @click="btn_shoucangbenti">收藏本题</button>
+					<button :class="{'shoucang_active':ref_shoucang_active}" @click="btn_shoucangbenti">收藏本题</button>
+					<!-- <button :class="{'shoucang_active':ref_shoucang_active}" @click="btn_shoucangbenti">收藏本题</button> -->
 					<button @click="btn_xiayiti">下一题</button>
 				</view>
 			</view>
@@ -160,6 +161,18 @@
 	const iserror = ref(false)
 
 
+
+	//错题与收藏
+	const cuoti_json = ref({})
+	const soucang_json = ref({})
+
+	const kaiji = ref(true)
+
+	const ref_shoucang_active = ref(false)
+	cuoti_json.value.tiku_id_lists = []
+	soucang_json.value.tiku_id_lists = []
+	cuoti_json.value.tiku_value_lists = []
+	soucang_json.value.tiku_value_lists = []
 	//=====body2结束=======
 
 
@@ -189,8 +202,50 @@
 	}
 	get_tk()
 	const update_data = () => {
+		const fileName = g.Select_tiku_path.substring(g.Select_tiku_path.lastIndexOf('/') + 1).replace('.json',
+			'');
+		g.tk_fileName = fileName
+		if (kaiji.value) {
+			kaiji.value = false
+			try {
+				g.R_file(g.getCachePath() + "/" + fileName + ".like").then(result => {
+					soucang_json.value = JSON.parse(result)
+					ref_shoucang_active.value = false
+					for (let i = 0; i < soucang_json.value.tiku_id_lists.length; i++) {
+						if (soucang_json.value.tiku_id_lists[i] === tk_index.value) {
+							ref_shoucang_active.value = true
+						}
+
+					}
+				})
+
+			} catch {
+				console.log("读取缓存收藏失败！！")
+			}
+		}
+		try {
+			g.R_file(g.getCachePath() + "/" + fileName + ".like").then(result => {
+				soucang_json.value = JSON.parse(result)
+				ref_shoucang_active.value = false
+				for (let i = 0; i < soucang_json.value.tiku_id_lists.length; i++) {
+					if (soucang_json.value.tiku_id_lists[i] === tk_index.value) {
+						ref_shoucang_active.value = true
+					}
+
+				}
+			})
+
+		} catch {
+			console.log("读取缓存收藏失败！！")
+		}
 
 
+
+		uni.setNavigationBarTitle({
+			title: g.tk_fileName, // 新标题内容
+			success: () => console.log('标题修改成功'),
+			fail: (err) => console.error('修改失败', err)
+		});
 		if (g.tk[tk_index.value].type === 1) {
 			text_question_type.value = "[单选题]"
 		} else if (g.tk[tk_index.value].type === 2) {
@@ -299,7 +354,9 @@
 			try {
 				g.tk = JSON.parse(result)
 				update_data()
-				console.log("转化成功")
+
+
+
 			} catch {
 				g.ShowText("转化题库失败")
 
@@ -355,6 +412,7 @@
 								try {
 									g.tk = JSON.parse(res)
 									update_data()
+
 									console.log("转化成功！")
 								} catch {
 									g.ShowText("转化题库失败")
@@ -455,6 +513,10 @@
 	}
 	const btn_tiaozhuan = () => {
 		showDialog_tiaozhuan.value = true
+		text_analysis_icon.value = ""
+		text_analysis.value = ""
+		select_Items.value = []
+		click_enter.value = false
 	}
 	const btn_suiji = () => {
 		// g.ShowText("随机练习")
@@ -462,19 +524,43 @@
 			g.ShowText("还未选择题库，请去选择题库~")
 		} else {
 
-
+			g.ShowText("功能还未开发~")
 		}
 
 	}
+	//比较两个数组是否相等，允许顺序不同
+	function ArraysEqual(arr1, arr2) {
+		if (arr1.length !== arr2.length) return false;
+		const sortedArr1 = [...arr1].sort();
+		const sortedArr2 = [...arr2].sort();
+		return JSON.stringify(sortedArr1) === JSON.stringify(sortedArr2);
+	}
+
+	function getFilteredLetters(boolArray) {
+		const letters = Array.from({
+			length: boolArray.length
+		}, (_, i) => String.fromCharCode(65 + i));
+		return boolArray.map((isIncluded, index) => isIncluded ? letters[index] : null).filter(Boolean);
+	}
 	const btn_enter = () => {
 		// g.ShowText("确定")
-		console.log("============================")
-		console.log(JSON.stringify(g.tk[tk_index.value]))
+		//console.log("============================")
+		// console.log(JSON.stringify(g.tk[tk_index.value]))
 		// console.log("============================")
 		// console.log(JSON.stringify(options.value))
 		click_enter.value = !click_enter.value
 		text_analysis_icon.value = "[解析]"
 		text_analysis.value = g.tk[tk_index.value].analysis
+		if (select_Items.value.length > 0) {
+			if (!ArraysEqual(getFilteredLetters(select_Items.value), g.tk[tk_index.value].answer)) {
+				console.log("no")
+				const fileName = g.Select_tiku_path.substring(g.Select_tiku_path.lastIndexOf('/') + 1).replace('.json',
+					'');
+				shoucang_obj(g.getCachePath() + "/" + fileName + ".error", cuoti_json)
+
+			}
+		}
+
 	}
 	const btn_shangyiti = () => {
 		// g.ShowText("上一题")
@@ -497,14 +583,50 @@
 		}
 
 	}
+	const shoucang_obj = (path, obj) => {
+		if (g.fileName === "") {
+			return
+		}
+		console.log(path)
+
+
+
+		for (let i = 0; i < obj.value.tiku_id_lists.length; i++) {
+			if (obj.value.tiku_id_lists[i] === tk_index.value) {
+				if (path.endsWith("like")) {
+				obj.value.tiku_id_lists.splice(i, 1)
+				obj.value.tiku_value_lists.splice(i, 1)
+				
+					g.W_file(path, JSON.stringify(obj.value))
+					g.ShowText("已移除该题！")
+				}else{
+					return
+				}
+				update_data()
+				return
+			}
+
+		}
+
+		obj.value.tiku_id_lists.push(tk_index.value)
+		obj.value.tiku_value_lists.push(g.tk[tk_index.value])
+		g.W_file(path, JSON.stringify(obj.value))
+		g.ShowText("已记录该题！")
+		update_data()
+	}
+
 	const btn_shoucangbenti = () => {
+
 		// g.ShowText("收藏本题")
 		if (g.Select_tiku_path === "") {
 			g.ShowText("还未选择题库，请去选择题库~")
 		} else {
-
+			const fileName = g.Select_tiku_path.substring(g.Select_tiku_path.lastIndexOf('/') + 1).replace('.json',
+				'');
+			shoucang_obj(g.getCachePath() + "/" + fileName + ".like", soucang_json)
 
 		}
+
 
 	}
 	const save_Continue = () => {
@@ -704,5 +826,9 @@
 
 	.analysis_icon {
 		padding: 5px;
+	}
+
+	.shoucang_active {
+		background-color: #FE9900
 	}
 </style>
