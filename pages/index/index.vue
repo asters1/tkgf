@@ -33,10 +33,10 @@
 			</view>
 			<view style="padding: 10px;"></view>
 			<view class="body2_head">
-				<button @click="btn_jixu">继续练习</button>
-				<button @click="btn_shunxu">顺序练习 </button>
-				<button @click="btn_tiaozhuan">跳转练习 </button>
-				<button @click="btn_suiji">随机练习</button>
+				<button @click="btn_jixu">继续</button>
+				<button @click="btn_shunxu">顺序</button>
+				<button @click="btn_tiaozhuan">跳转</button>
+				<button @click="btn_suiji">随机</button>
 				<input-dialog v-model="showDialog_tiaozhuan" title="跳转题目顺序练习" placeholder="请输入第几题"
 					@confirm="input_tk_index" @cancel="onInputCancel" />
 			</view>
@@ -261,7 +261,7 @@
 			}
 
 			console.log(g.tk.length)
-			tk_total.value = g.tk.length
+
 			update_data()
 			// g.ShowText(options.value)
 		}
@@ -298,6 +298,8 @@
 		g.R_file(g.Select_tiku_path).then(result => {
 			try {
 				g.tk = JSON.parse(result)
+				update_data()
+				console.log("转化成功")
 			} catch {
 				g.ShowText("转化题库失败")
 
@@ -343,12 +345,32 @@
 				c_lianxi.value = "select_btn"
 				lianxi.value.SetTextClass("select_text")
 				if (g.Select_tiku_path === "") {
-					g.ShowText("还未选择题库，请去选择题库~")
+					try {
+						g.R_file(g.getCachePath() + "/tkgf.continue").then(result => {
+							let continue_obj = JSON.parse(result)
+							// g.ShowText(continue_obj)
+							g.Select_tiku_path = continue_obj.Select_tiku_path
+							console.log(g.Select_tiku_path)
+							g.R_file(g.Select_tiku_path).then(res => {
+								try {
+									g.tk = JSON.parse(res)
+									update_data()
+									console.log("转化成功！")
+								} catch {
+									g.ShowText("转化题库失败")
+
+
+								}
+							})
+
+							tk_index.value = continue_obj.tk_index
+							tk_total.value = continue_obj.tk_total
+
+						})
+					} catch {
+						g.ShowText("还未选择题库，请去选择题库~")
+					}
 				}
-
-
-
-
 				break;
 			case 2:
 				cuoti.value.SetClassString("icon-icon-error-copy")
@@ -389,8 +411,29 @@
 		if (g.Select_tiku_path === "") {
 			g.ShowText("还未选择题库，请去选择题库~")
 		} else {
-			g.ShowText("功能正在开发，敬请期待~")
+			const fileName = g.Select_tiku_path.substring(g.Select_tiku_path.lastIndexOf('/') + 1).replace('.json',
+				'');
+			g.R_file(g.getCachePath() + "/" + fileName + ".continue").then(result => {
+				let continue_obj = JSON.parse(result)
+				// g.ShowText(continue_obj)
+				g.Select_tiku_path = continue_obj.Select_tiku_path
+				console.log(g.Select_tiku_path)
+				g.R_file(g.Select_tiku_path).then(res => {
+					try {
+						g.tk = JSON.parse(res)
+						update_data()
+						console.log("转化成功！")
+					} catch {
+						g.ShowText("转化题库失败")
 
+
+					}
+				})
+
+				tk_index.value = continue_obj.tk_index
+				tk_total.value = continue_obj.tk_total
+
+			})
 		}
 
 	}
@@ -427,8 +470,8 @@
 		// g.ShowText("确定")
 		console.log("============================")
 		console.log(JSON.stringify(g.tk[tk_index.value]))
-		console.log("============================")
-		console.log(JSON.stringify(options.value))
+		// console.log("============================")
+		// console.log(JSON.stringify(options.value))
 		click_enter.value = !click_enter.value
 		text_analysis_icon.value = "[解析]"
 		text_analysis.value = g.tk[tk_index.value].analysis
@@ -443,10 +486,14 @@
 			} else {
 				tk_index.value = tk_index.value - 1
 			}
+			tk_total.value = g.tk.length
 			text_analysis_icon.value = ""
 			text_analysis.value = ""
+			select_Items.value = []
 			click_enter.value = false
+			save_Continue()
 			update_data()
+
 		}
 
 	}
@@ -459,6 +506,18 @@
 
 		}
 
+	}
+	const save_Continue = () => {
+		const fileName = g.Select_tiku_path.substring(g.Select_tiku_path.lastIndexOf('/') + 1).replace('.json',
+			'');
+		let tkgf_cache_file = g.getCachePath() + "/tkgf.continue"
+		let tiku_cache_file = g.getCachePath() + "/" + fileName + ".continue"
+		let f_obj = {}
+		f_obj.Select_tiku_path = g.Select_tiku_path
+		f_obj.tk_index = tk_index.value
+		f_obj.tk_total = tk_total.value
+		g.W_file(tkgf_cache_file, JSON.stringify(f_obj))
+		g.W_file(tiku_cache_file, JSON.stringify(f_obj))
 	}
 	const btn_xiayiti = () => {
 		// g.ShowText("下一题")
@@ -473,7 +532,10 @@
 
 			text_analysis_icon.value = ""
 			text_analysis.value = ""
+			select_Items.value = []
 			click_enter.value = false
+			tk_total.value = g.tk.length
+			save_Continue()
 			update_data()
 		}
 
@@ -495,7 +557,9 @@
 		/* padding: 40px; */
 	}
 
-	.container {}
+	.container {
+		width: 97%;
+	}
 
 	.body1 {
 		padding-top: 30px;
@@ -583,6 +647,7 @@
 		margin-left: 15px;
 		display: flex;
 		flex-direction: column;
+		width: 99%;
 	}
 
 	.body2_head {
@@ -601,6 +666,7 @@
 		display: flex;
 		flex-direction: column;
 		margin-bottom: 100px;
+		background-color: #fff;
 	}
 
 	.btn_enter {

@@ -44,7 +44,7 @@ const g = {
 	},
 	"W_file": function(filePath, content) {
 		// g.ShowText("==")
-		g.ShowText(filePath)
+		// g.ShowText(filePath)
 		// g.ShowText("==")
 		// 文件不存在，先创建文件再写入
 		const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
