@@ -219,7 +219,8 @@ const g = {
 					reject('获取源文件失败: ' + error.message);
 				});
 		});
-	},"downloadFile": function(path,url) {
+	},
+	"downloadFile": function(path, url) {
 
 		const fileName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
 		uni.downloadFile({
@@ -238,8 +239,8 @@ const g = {
 							this.delete_file(path + "/" + fileName)
 							this.mv_file(
 								saveRes.savedFilePath,
-								path+ "/" + fileName)
-							g.ShowText('下载成功!\n文件已保存:\n' +path + "/" +
+								path + "/" + fileName)
+							g.ShowText('下载成功!\n文件已保存:\n' + path + "/" +
 								fileName);
 						}
 					});

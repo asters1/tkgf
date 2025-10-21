@@ -4,6 +4,7 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "首页"
+			
 			}
 		},
 		{
@@ -12,14 +13,16 @@
 			{
 				"navigationBarTitleText" : "题库",
 				"enablePullDownRefresh" : false
+				
 			}
 		},
 		{
 			"path" : "pages/remote/remote",
 			"style" : 
 			{
-				"navigationBarTitleText" : "远程导入",
+				"navigationBarTitleText" : "远程题库",
 				"enablePullDownRefresh" : false
+				
 			}
 		},
 		{
@@ -28,6 +31,7 @@
 			{
 				"navigationBarTitleText" : "",
 				"enablePullDownRefresh" : false
+			
 			}
 		}
 	],

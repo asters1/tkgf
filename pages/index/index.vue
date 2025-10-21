@@ -1,6 +1,6 @@
 <template>
 	<view class="content body">
-		<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom>
+		
 		<button type="primary" @click="local_btn">本地导入</button>
 		<button type="primary" @click="click_remote_btn">远程导入</button>
 		<button type="primary" @click="click_mk_tiku_btn">题库制作</button>
@@ -9,7 +9,7 @@
 	</view>
 
 
-
+<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom>
 </template>
 
 <script setup>
