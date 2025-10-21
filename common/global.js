@@ -102,6 +102,19 @@ const g = {
 			}
 		});
 	},
+	"delete_file": function(filePath) {
+		return new Promise((resolve, reject) => {
+			plus.io.resolveLocalFileSystemURL(filePath, (entry) => {
+				entry.remove(() => {
+					resolve('文件删除成功');
+				}, (error) => {
+					reject('删除文件失败: ' + error.message);
+				});
+			}, (error) => {
+				reject('获取文件失败: ' + error.message);
+			});
+		});
+	},
 	"W_file": function(filePath, content) {
 		// g.ShowText("==")
 		// g.ShowText(filePath)
@@ -205,6 +218,38 @@ const g = {
 				(error) => {
 					reject('获取源文件失败: ' + error.message);
 				});
+		});
+	},"downloadFile": function(path,url) {
+
+		const fileName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
+		uni.downloadFile({
+			url: url, // 下载地址
+			header: {
+				"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1 Edg/141.0.0.0"
+			},
+
+			success: (res) => {
+				if (res.statusCode === 200) {
+					// console.log('下载成功，临时路径:', res.tempFilePath);
+					// 进一步保存到本地（APP端）
+					uni.saveFile({
+						tempFilePath: res.tempFilePath,
+						success: (saveRes) => {
+							this.delete_file(path + "/" + fileName)
+							this.mv_file(
+								saveRes.savedFilePath,
+								path+ "/" + fileName)
+							g.ShowText('下载成功!\n文件已保存:\n' +path + "/" +
+								fileName);
+						}
+					});
+				} else {
+					g.ShowText('下载失败!状态码：' + res.statusCode);
+				}
+			},
+			fail: (err) => {
+				g.ShowText('下载失败' + err);
+			}
 		});
 	}
 }

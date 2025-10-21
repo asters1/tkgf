@@ -37,7 +37,7 @@
 
 
 	const input_click_enter = (value) => {
-		g.log(value)
+		g.downloadFile(g.pulic_tiku_dir, value)
 		g.log("用户点击了确定")
 	}
 	const input_click_cancel = () => {
@@ -47,14 +47,12 @@
 		show_remote_download.value = true
 	}
 	const local_btn = () => {
-g.ShowWindow("本地导入","请将题库文件(后缀名为.json)放入手机储存根目录(/storage/emulated/0)下的000TiKu文件夹下~")
+		g.ShowWindow("本地导入", "请将题库文件(后缀名为.json)放入手机储存根目录(/storage/emulated/0)下的000TiKu文件夹下~")
 
 	}
-	const click_mk_tiku_btn=()=>{
+	const click_mk_tiku_btn = () => {
 		g.ShowText("题库制作正在开发~")
-		
 	}
-
 </script>
 
 <style>
