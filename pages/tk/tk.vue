@@ -1,46 +1,26 @@
 <template>
-	<view class="content">
-		
-		<!-- <view class="tks_content"> -->
-		<scroll-view scroll-y="true" class="scroll-container">
-			<!-- 这里放需要滚动的内容 -->
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
+	<!-- <view class="tks_content"> -->
+	<!-- <scroll-view scroll-y="true" class="scroll-container"> -->
+	<!-- 这里放需要滚动的内容 -->
+	<A_item v-for="item in tk_items" :key="item.id" :item="item" class="item"
+		:class="{ active: body1_activeId === item.id }" :value="item.value" @click="itemClick">
+		{{ item.name }}
 
-			</view>
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
+	</A_item>
+	<!-- </scroll-view> -->
+	<view class="content1">
 
-			</view>
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
 
-			</view>
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
 
-			</view>
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
 
-			</view>
-			<view v-for="item in tk_items" :key="item" class="item" :class="{ active: body1_activeId === item.id }"
-				:value="item.value" @click="itemClick(item.id)">
-				{{ item.name }}
 
-			</view>
-			<view style="padding: 100px;"></view>
+		<view style="padding: 100px;"></view>
 
-		</scroll-view>
+
 
 	</view><!-- </view> -->
-	
-	
+
+
 
 </template>
 
@@ -71,8 +51,8 @@
 		});
 
 	}
-	const itemClick = (id) => {
-		g.log(id)
+	const itemClick = (item) => {
+		g.log(item)
 	}
 
 
@@ -82,7 +62,7 @@
 </script>
 
 <style>
-	@import "../../static/gobal.css";
+	/* @import "../../static/gobal.css"; */
 
 	.content {
 		width: 99%;
@@ -95,14 +75,14 @@
 		/* 必须设置固定高度，否则无法滚动 */
 		border: 1px solid #eee;
 		scrollbar-width: none;
-		/* width: 99%; */
-
+		width: 99%;
+		overflow-x: hidden;
 
 	}
 
 	.item {
 		width: 99%;
-		padding: 20px;
+
 		border-bottom: 1px solid #ddd;
 	}
 </style>
