@@ -41,7 +41,7 @@
 	</view><!-- </view> -->
 	
 	
-	<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom>
+
 </template>
 
 <script setup>

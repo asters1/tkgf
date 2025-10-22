@@ -35,6 +35,38 @@
 			}
 		}
 	],
+
+	
+	"tabBar": {
+		"color": "#3F3F3F",
+		"selectedColor": "#1296db",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+		{
+		"pagePath": "pages/index/index",
+		"iconPath": "static/icon/zhuye.png",
+		"selectedIconPath": "static/icon/zhuye-copy.png",
+		"text": "主页"
+		},{
+		"pagePath": "pages/tk/tk",
+		"iconPath": "static/icon/fenlei.png",
+		"selectedIconPath": "static/icon/fenlei-copy.png",
+		"text": "题库"
+		},{
+		"pagePath": "pages/remote/remote",
+		"iconPath": "static/icon/tianqi-copy.png",
+		"selectedIconPath": "static/icon/tianqi-copy-copy.png",
+		"text": "远程"
+		},{
+		"pagePath": "pages/my/my",
+		"iconPath": "static/icon/geren.png",
+		"selectedIconPath": "static/icon/geren-copy.png",
+		"text": "我的"
+		}]
+		
+		
+	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",

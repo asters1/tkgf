@@ -8,15 +8,15 @@
 			@cancel="input_click_cancel" />
 	</view>
 
-
-<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom>
+<!-- 
+<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom> -->
 </template>
 
 <script setup>
 	import {
 		ref
 	} from 'vue'
-	import A_bottom from '@/components/A_bottom/A_bottom.vue'
+	
 	import g from '@/common/global'
 
 	import {

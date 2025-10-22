@@ -1,11 +1,9 @@
 <template>
-	<view class="content">
-		<A_bottom class="g_bottom" ref="ref_bottom"></A_bottom>
-	</view>
+	<A_item>aaaa</A_item>
 </template>
 
 <script setup>
-
+import A_item from '@/components/A_item/A_item.vue'
 </script>
 
 <style>
