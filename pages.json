@@ -33,6 +33,14 @@
 				"enablePullDownRefresh" : false
 			
 			}
+		},
+		{
+			"path" : "pages/exercise/exercise",
+			"style" : 
+			{
+				"navigationBarTitleText" : "",
+				"enablePullDownRefresh" : false
+			}
 		}
 	],
 

@@ -3,7 +3,9 @@
 const g = {
 	"icon_index": 0,
 	"debug": true,
-	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
+	"pulic_tiku_dir": "/storage/emulated/0/Download/000TiKu",
+
+
 	"ShowText": function(text) {
 		console.log(text)
 		uni.showToast({
@@ -30,7 +32,12 @@ const g = {
 		// 检查并请求存储权限
 		// 判断有没有存储权限
 		var _this = this
-		plus.android.requestPermissions(['android.permission.WRITE_EXTERNAL_STORAGE'], function(e) {
+		plus.android.requestPermissions([
+			'android.permission.WRITE_EXTERNAL_STORAGE',
+			'android.permission.READ_EXTERNAL_STORAGE',
+			'android.permission.INTERNET',
+			'android.permission.ACCESS_WIFI_STATE'
+		], function(e) {
 			if (e.deniedAlways.length > 0) { //权限被永久拒绝
 				// 弹出提示框解释为何需要读写手机储存权限，引导用户打开设置页面开启
 				uni.showModal({
