@@ -111,6 +111,7 @@ const g = {
 					return;
 				}
 
+
 				const success = dir.mkdirs(); // mkdirs()会自动递归创建
 				if (success) {
 					resolve(true);
@@ -259,6 +260,42 @@ const g = {
 				reject(e); // 错误信息传递给 catch
 			}
 		});
+	},
+	/**
+	 * 获取文件修改时间（Android 平台）
+	 * @param {string} path 文件绝对路径
+	 * @returns {Promise<number>} 成功返回修改时间戳（毫秒），失败返回错误信息
+	 */
+	"getFileModifyTime": function(path) {
+
+		if (!path) {
+			g.log('文件路径不能为空');
+			return;
+		}
+
+		try {
+			// 导入 Android File 类
+			const File = plus.android.importClass('java.io.File');
+			const file = new File(path);
+
+			if (!file.exists()) {
+				g.log('文件不存在: ' + path);
+				return;
+			}
+
+			// 获取最后修改时间（毫秒时间戳，UTC 时间）
+			const modifyTime = file.lastModified();
+			const formattedDate = new Date(modifyTime).toISOString().slice(0, 10);
+			// console.log(new Date(modifyTime).toUTCString())
+			// const year = new Date(modifyTime).getFullYear()
+			// const month = new Date(modifyTime).getMonth()
+			// const day = new Date(modifyTime).getDay()
+			// const localtime = year + "-" + month + "-" + day
+			return formattedDate;
+
+		} catch (e) {
+			g.log('获取修改时间失败: ' + e.message);
+		}
 	},
 	/**
 	 * @param {String} dir			文件夹路径，注意结尾不要带"/".

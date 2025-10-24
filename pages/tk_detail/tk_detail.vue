@@ -68,18 +68,12 @@
 		}
 		// console.log(moveY);
 	};
+	
 	//===========程序开始============
 	g.log(g.exercise_tk_obj)
-	g.async_R_file(g.exercise_tk_obj.value).then((result) => {
-		g.log(result)
-		
-		let str = JSON.parse(result.join(""))
-		g.log(str)
-		g.log("====")
-	}).catch((error) => {
-		console.error('文件读取失败：', error.message);
-	})
-	// g.log(res_list)
+	let result = g.getFileModifyTime(g.exercise_tk_obj.value)
+	g.log(result)
+	g.log("=======")
 
 
 	onShow(() => {
