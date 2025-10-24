@@ -4,7 +4,7 @@ const g = {
 	"icon_index": 0,
 	"debug": true,
 	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
-
+	"exercise_tk_obj": {},
 
 	"ShowText": function(text) {
 		console.log(text)

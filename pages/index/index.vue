@@ -33,8 +33,6 @@
 		//初始化
 		g.get_storage_permission()
 		g.MkdirAll(g.pulic_tiku_dir)
-
-
 	}
 	tkgf_init()
 
@@ -85,12 +83,6 @@
 				console.error("获取目标目录失败：" + error.message);
 			}
 		);
-	}
-	//===============
-	import f from '@/common/file'
-	const click_test_btn = () => {
-		g.log(f.filelist("/storage/emulated/0/000TiKu0"))
-
 	}
 </script>
 

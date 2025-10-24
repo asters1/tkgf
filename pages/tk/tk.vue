@@ -18,7 +18,7 @@
 
 
 
-	</view><!-- </view> -->
+	</view>
 
 
 
@@ -57,7 +57,10 @@
 	}
 	const itemClick = (item) => {
 		g.log("点击了题库")
-		g.log(item)
+		g.exercise_tk_obj = item
+		uni.navigateTo({
+			url: '/pages/tk_detail/tk_detail'
+		});
 	}
 	const delete_item = (item) => {
 		g.log("点击了删除")
