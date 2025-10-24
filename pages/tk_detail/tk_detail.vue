@@ -29,24 +29,6 @@
 		title: g.exercise_tk_obj.name
 	})
 
-
-
-	let swiper_data = ref([{
-			name: "1",
-			likestate: 0,
-			anim: null
-		},
-		{
-			name: "2",
-			likestate: 0,
-			anim: null
-		},
-		{
-			name: "3",
-			likestate: 0,
-			anim: null
-		},
-	]);
 	let startX = 0; // 滑动开始x轴的位置
 	let startY = 0; // 滑动开始y轴的位置
 	let moveX = 0; // 滑动X轴的位置
@@ -86,6 +68,19 @@
 		}
 		// console.log(moveY);
 	};
+	//===========程序开始============
+	g.log(g.exercise_tk_obj)
+	g.async_R_file(g.exercise_tk_obj.value).then((result) => {
+		g.log(result)
+		
+		let str = JSON.parse(result.join(""))
+		g.log(str)
+		g.log("====")
+	}).catch((error) => {
+		console.error('文件读取失败：', error.message);
+	})
+	// g.log(res_list)
+
 
 	onShow(() => {
 

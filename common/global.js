@@ -4,6 +4,7 @@ const g = {
 	"icon_index": 0,
 	"debug": true,
 	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
+
 	"exercise_tk_obj": {},
 
 	"ShowText": function(text) {
@@ -86,6 +87,10 @@ const g = {
 		// this.ShowText('外部缓存目录:' + path);
 		return path;
 	},
+	"getTkDataDir": function() {
+		return g.getCachePath() + "/../tk"
+	},
+
 	"getRealPath": function(path) {
 
 		// 转换为真实路径
@@ -164,7 +169,7 @@ const g = {
 	 * @param {String} charset 编码
 	 * @return {Array<String>} 内容列表（按行读取）,文件不存在或异常则返回false
 	 */
-	"R_file": async function(path = '', charset = 'utf-8') {
+	"R_file": function(path = '', charset = 'utf-8') {
 		const File = plus.android.importClass('java.io.File');
 		const InputStreamReader = plus.android.importClass('java.io.InputStreamReader');
 		const BufferedReader = plus.android.importClass('java.io.BufferedReader');
@@ -196,6 +201,64 @@ const g = {
 		}
 		return list;
 
+	},
+	/**
+	 * 异步读取文件（Android 平台，基于 Promise）
+	 * @param {string} path 文件路径（默认空字符串）
+	 * @param {string} charset 字符编码（默认 'utf-8'）
+	 * @returns {Promise} 返回 Promise 对象，成功时 resolve 读取的内容数组，失败时 reject 错误信息
+	 */
+	"async_R_file": function(path = '', charset = 'utf-8') {
+		// 返回 Promise 对象，在 executor 函数中执行异步操作
+		return new Promise((resolve, reject) => {
+			const File = plus.android.importClass('java.io.File');
+			const InputStreamReader = plus.android.importClass('java.io.InputStreamReader');
+			const BufferedReader = plus.android.importClass('java.io.BufferedReader');
+			const FileInputStream = plus.android.importClass('java.io.FileInputStream');
+
+			let file = new File(path);
+			let inputStreamReader = null;
+			let bufferedReader = null;
+			let list = [];
+
+			try {
+				// 检查文件是否存在
+				if (!file.exists()) {
+					reject(new Error('文件不存在: ' + path)); // 文件不存在时拒绝
+					return;
+				}
+
+				// 读取文件内容
+				inputStreamReader = new InputStreamReader(new FileInputStream(file), charset);
+				bufferedReader = new BufferedReader(inputStreamReader);
+
+				let line = '';
+				while (null != (line = bufferedReader.readLine())) {
+					list.push(line);
+				}
+
+				// 关闭流
+				bufferedReader.close();
+				inputStreamReader.close();
+
+				// 读取成功， resolve 结果
+				resolve(list);
+
+			} catch (e) {
+				// 捕获异常，关闭流并 reject 错误
+				if (bufferedReader) {
+					try {
+						bufferedReader.close();
+					} catch (err) {}
+				}
+				if (inputStreamReader) {
+					try {
+						inputStreamReader.close();
+					} catch (err) {}
+				}
+				reject(e); // 错误信息传递给 catch
+			}
+		});
 	},
 	/**
 	 * @param {String} dir			文件夹路径，注意结尾不要带"/".

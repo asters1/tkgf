@@ -27,12 +27,15 @@
 
 	// g.log(g.getRealPath("_download"))
 
-	g.log(g.get_tks_path(g.pulic_tiku_dir))
+	// g.log(g.get_tks_path(g.pulic_tiku_dir))
 	
 	const tkgf_init = () => {
 		//初始化
 		g.get_storage_permission()
 		g.MkdirAll(g.pulic_tiku_dir)
+		g.MkdirAll(g.getTkDataDir())
+		
+		
 	}
 	tkgf_init()
 
