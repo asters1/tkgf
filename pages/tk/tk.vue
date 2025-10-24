@@ -3,7 +3,7 @@
 	<!-- <scroll-view scroll-y="true" class="scroll-container"> -->
 	<!-- 这里放需要滚动的内容 -->
 	<A_item v-for="item in tk_items" :key="item.id" :item="item" class="item"
-		:class="{ active: body1_activeId === item.id }" :value="item.value" @click="itemClick">
+		:class="{ active: body1_activeId === item.id }" :value="item.value" @click="itemClick" @delete="delete_item">
 		{{ item.name }}
 
 	</A_item>
@@ -30,35 +30,48 @@
 	} from 'vue'
 
 	import g from '@/common/global'
+	import {
+		onLoad,
+		onShow
+	} from '@dcloudio/uni-app'
+
+
 	const tk_items = ref([])
 	const body1_activeId = ref(null);
+	const isnotfrist = ref(false)
 
 	const get_tk = () => {
 		tk_items.value = []
-		g.get_tks_path(g.pulic_tiku_dir).then(result => {
-			// g.ShowText(JSON.stringify(result[0]));
-			// g.ShowText(result.length)
-			// tk_items.value=result/
-			for (let i = 0; i < result.length; i++) {
-				// g.ShowText(JSON.stringify(result[i]))
-				let obj = {
-					"name": result[i].name.replace('.json', ''),
-					"value": result[i].fullPath,
-					"id": i
-				}
-				tk_items.value.push(obj)
+		let result = g.get_tks_path(g.pulic_tiku_dir)
+
+		for (let i = 0; i < result.length; i++) {
+			let obj = {
+				"name": result[i].name.replace('.json', ''),
+				"value": result[i].fullPath,
+				"id": i
 			}
-		});
+			tk_items.value.push(obj)
+		}
+
 
 	}
 	const itemClick = (item) => {
+		g.log("点击了题库")
 		g.log(item)
 	}
+	const delete_item = (item) => {
+		g.log("点击了删除")
+		g.log(item)
+		tk_items.value.splice(item.id, 1)
+		g.delete_file(item.value)
 
+	}
+	//页面展示时加载
+	onShow(() => {
+		g.log("题库页面加载~")
+		get_tk()
 
-
-
-	get_tk()
+	})
 </script>
 
 <style>

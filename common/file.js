@@ -10,7 +10,7 @@
 	Unicode编码：顾名思义，这是国际统一标准编码，在这之前各国标准编码不统一，微软等公司需要为各国的计算机系统定制符合不同编码标准的系统，显然，成本太高，并且互联网的出现让不同编码标准的计算机交互变得困难，如：两国的邮件系统，会因为使用不同的编码标准而导致接受方收到的邮件是乱码。
 	utf-8和utf-16编码：UTF的意思是（UCS Transfer Format），显然是随着互联网的出现，需要解决Unicode在网络上的传输问题。顾名思义，UTF8就是每次8个位传输数据，而UTF16就是每次16个位，只不过为了传输时的可靠性，从UNICODE到UTF时并不是直接的对应，而是要过一些算法和规则来转换。UTF-8就是在互联网上使用最广的一种unicode的实现方式。
 */
- 
+
 /**
  * 获取手机内置存储的根路径
  * @return {String}
@@ -19,7 +19,7 @@ const root = function() {
 	const environment = plus.android.importClass("android.os.Environment");
 	return environment.getExternalStorageDirectory();
 }
- 
+
 /**
  * 获取指定文件夹下的所有文件和文件夹列表
  * @param {String} path 文件夹路径
@@ -32,12 +32,12 @@ const filelist = function(dir = '') {
 	let tempList = file.listFiles();
 	console.log(tempList)
 	for (let i = 0; i < tempList.length; i++) {
-		let fileName = tempList[i].getName();
+		let fileName = dir + "/" + tempList[i].getName();
 		list.push(fileName);
 	}
 	return list;
 }
- 
+
 /**
  * 创建文件
  * @return {boolean} flase=失败（已存在、操作失败），true=成功
@@ -50,12 +50,12 @@ const createNewFile = function(path = '') {
 	}
 	return false;
 }
- 
+
 /**
  * 创建文件夹
  * @return {boolean} flase=失败（已存在、操作失败），true=成功
  */
-const mkdirs = function(path = ''){
+const mkdirs = function(path = '') {
 	const File = plus.android.importClass('java.io.File');
 	let file = new File(path);
 	if (!file.exists()) {
@@ -63,7 +63,7 @@ const mkdirs = function(path = ''){
 	}
 	return false;
 }
- 
+
 /**
  * 读取文件
  * @param {String} path 文件路径
@@ -102,7 +102,7 @@ const readTxt = function(path = '', charset = 'utf-8') {
 	}
 	return list;
 }
- 
+
 /**
  * 写入文件内容
  * @param {String} path 文件路径
@@ -115,7 +115,7 @@ const writeTxt = function(path = '', content = '', append = false, charset = 'ut
 	const File = plus.android.importClass('java.io.File');
 	const FileOutputStream = plus.android.importClass('java.io.FileOutputStream');
 	const OutputStreamWriter = plus.android.importClass('java.io.OutputStreamWriter');
- 
+
 	let outputStreamWriter;
 	let file = new File(path);
 	try {
@@ -134,31 +134,31 @@ const writeTxt = function(path = '', content = '', append = false, charset = 'ut
 	}
 	return true;
 }
- 
+
 /**
  * 判断文件是否存在
  * @param path 文件路径
  * @return true=存在 false=不存在
  */
-const isFileExist = function(path = ''){
+const isFileExist = function(path = '') {
 	const File = plus.android.importClass('java.io.File');
 	return new File(path).exists()
 }
- 
+
 /**
  * 删除文件
  * @param {String} path
  */
-const deleteFile = function(path = ''){
+const deleteFile = function(path = '') {
 	const File = plus.android.importClass('java.io.File');
 	let file = new File(path);
 	if (file.exists()) {
 		return file.delete();
 	}
-	return false  
-} 
- 
- 
+	return false
+}
+
+
 export default {
 	root,
 	filelist,

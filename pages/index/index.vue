@@ -24,6 +24,11 @@
 		onReady
 	} from '@dcloudio/uni-app'
 	import InputDialog from '@/components/input-dialog/input-dialog.vue'
+
+	// g.log(g.getRealPath("_download"))
+
+	g.log(g.get_tks_path(g.pulic_tiku_dir))
+	
 	const tkgf_init = () => {
 		//初始化
 		g.get_storage_permission()

@@ -3,7 +3,7 @@
 const g = {
 	"icon_index": 0,
 	"debug": true,
-	"pulic_tiku_dir": "/storage/emulated/0/Download/000TiKu",
+	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
 
 
 	"ShowText": function(text) {
@@ -86,6 +86,14 @@ const g = {
 		// this.ShowText('外部缓存目录:' + path);
 		return path;
 	},
+	"getRealPath": function(path) {
+
+		// 转换为真实路径
+		const realPath = plus.io.convertLocalFileSystemURL(path);
+		// console.log('._doc 实际路径：', realPath);
+
+		return realPath;
+	},
 	"MkdirAll": function(Path) {
 		return new Promise((resolve, reject) => {
 			try {
@@ -109,124 +117,167 @@ const g = {
 			}
 		});
 	},
+	/**
+	 * 删除文件
+	 * @param {String} filePath
+	 */
 	"delete_file": function(filePath) {
-		return new Promise((resolve, reject) => {
-			plus.io.resolveLocalFileSystemURL(filePath, (entry) => {
-				entry.remove(() => {
-					resolve('文件删除成功');
-				}, (error) => {
-					reject('删除文件失败: ' + error.message);
-				});
-			}, (error) => {
-				reject('获取文件失败: ' + error.message);
-			});
-		});
+		const File = plus.android.importClass('java.io.File');
+		let file = new File(filePath);
+		if (file.exists()) {
+			return file.delete();
+		}
+		return false
 	},
-	"W_file": function(filePath, content) {
-		// g.ShowText("==")
-		// g.ShowText(filePath)
-		// g.ShowText("==")
-		// 文件不存在，先创建文件再写入
-		const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
-		const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
-		// 获取沙箱目录路径
-		filePath = plus.io.convertLocalFileSystemURL(filePath);
+	/**
+	 * @param path 			写入文件的路径   			*必填
+	 * @param content		写入文件的内容			*必填
+	 * @param append		追加文件，默认false		
+	 * @param charset		默认utf-8
+	 */
+	"W_file": function(path = '', content = '', append = false, charset = 'utf-8') {
+		const File = plus.android.importClass('java.io.File');
+		const FileOutputStream = plus.android.importClass('java.io.FileOutputStream');
+		const OutputStreamWriter = plus.android.importClass('java.io.OutputStreamWriter');
 
-		plus.io.requestFileSystem(plus.io.PRIVATE_WWW, function(fs) {
-			fs.root.getFile(filePath, {
-				create: true
-			}, function(fileEntry) {
-				fileEntry.createWriter(function(writer) {
-					writer.onwriteend = function(e) {
-						console.log('写入成功 ');
-					};
-					writer.onerror = function(e) {
-						console.error('写入失败：' + e.toString());
-					};
-					writer.write(content);
-				});
-			});
-		});
+		let outputStreamWriter;
+		let file = new File(path);
+		try {
+			//不存在则创建新的文件
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			outputStreamWriter = new OutputStreamWriter(new FileOutputStream(path, append), charset);
+			outputStreamWriter.write(content);
+			outputStreamWriter.close();
+		} catch (e) {
+			if (null != outputStreamWriter) {
+				outputStreamWriter.close();
+			}
+			return false;
+		}
+		return true;
+	},
+	/**
+	 * 读取文件
+	 * @param {String} path 文件路径
+	 * @param {String} charset 编码
+	 * @return {Array<String>} 内容列表（按行读取）,文件不存在或异常则返回false
+	 */
+	"R_file": async function(path = '', charset = 'utf-8') {
+		const File = plus.android.importClass('java.io.File');
+		const InputStreamReader = plus.android.importClass('java.io.InputStreamReader');
+		const BufferedReader = plus.android.importClass('java.io.BufferedReader');
+		const FileInputStream = plus.android.importClass('java.io.FileInputStream');
+		let file = new File(path);
+		let inputStreamReader = null;
+		let bufferedReader = null;
+		let list = [];
+		try {
+			if (!file.exists()) {
+				return false;
+			}
+			inputStreamReader = new InputStreamReader(new FileInputStream(file), charset);
+			bufferedReader = new BufferedReader(inputStreamReader);
+			let line = '';
+			while (null != (line = bufferedReader.readLine())) {
+				list.push(line);
+			}
+			bufferedReader.close();
+			inputStreamReader.close();
+		} catch (e) {
+			if (null != bufferedReader) {
+				bufferedReader.close();
+			}
+			if (null != inputStreamReader) {
+				inputStreamReader.close();
+			}
+			return false;
+		}
+		return list;
 
 	},
-	"R_file": async function(filePath) {
-		return new Promise((resolve, reject) => {
-			// const filePath = '/storage/emulated/0/Android/data/io.dcloud.HBuilder/tiku/a.txt';
-			const fullPath = plus.io.convertLocalFileSystemURL(filePath);
+	/**
+	 * @param {String} dir			文件夹路径，注意结尾不要带"/".
+	 * @param {String} filter		筛选后缀
+	 */
+	"get_file_list": function(dir = '', filter = "") {
+		const File = plus.android.importClass("java.io.File");
+		let list = [];
+		let file = new File(dir);
+		let tempList = file.listFiles();
+		// console.log(tempList)
+		for (let i = 0; i < tempList.length; i++) {
+			let fileName = dir + "/" + tempList[i].getName();
+			if (tempList[i].getName().endsWith(filter)) {
+				// g.log(fileName)
+				list.push(fileName);
+			}
 
-			plus.io.resolveLocalFileSystemURL(fullPath, (entry) => {
-				entry.file((file) => {
-					const reader = new plus.io.FileReader();
-					reader.onloadend = (e) => {
-						resolve(e.target.result); // 返回内容
-					};
-					reader.onerror = (e) => {
-						reject(new Error('读取失败'));
-					};
-					reader.readAsText(file);
-				}, (error) => reject(error));
-			}, (error) => reject(error));
-		});
+		}
+		return list;
 	},
+	/**
+	 * 获得目录中.json的列表
+	 * @param {String} targetDir		目标文件夹
+	 */
 	"get_tks_path": function(targetDir) {
-		return new Promise((resolve, reject) => {
-			// 构建目标目录路径
-			// const targetDir = '_documents/tiku'; // 使用相对路径更安全
-
-			plus.io.resolveLocalFileSystemURL(targetDir, (dirEntry) => {
-				const directoryReader = dirEntry.createReader();
-
-				directoryReader.readEntries((entries) => {
-					const jsonFiles = entries.filter(entry => {
-						return entry.isFile && entry.name.endsWith('.json');
-					}).map(fileEntry => {
-						return {
-							name: fileEntry.name,
-							fullPath: fileEntry.fullPath,
-							nativeURL: fileEntry.toLocalURL()
-						};
-					});
-
-					resolve(jsonFiles);
-				}, (error) => {
-					reject('读取目录内容失败: ' + error.message);
-				});
-			}, (error) => {
-				if (error.code === 1) { // NOT_FOUND_ERR
-					resolve([]); // 目录不存在返回空数组
-				} else {
-					reject('访问目录失败: ' + error.message);
-				}
-			});
-		});
+		let tks = this.get_file_list(targetDir, ".json")
+		let result = []
+		// g.log(tks)
+		for (let i = 0; i < tks.length; i++) {
+			const fileNameWithSuffix = tks[i].split('/').pop(); // 结果："钳工题.json"
+			let tk_obj = {}
+			tk_obj.id = i
+			tk_obj.name = fileNameWithSuffix.slice(0, -5)
+			tk_obj.fullPath = tks[i]
+			result.push(tk_obj)
+		}
+		return result
 	},
+
+	/**
+	 * @param  oldPath 旧的文件路径
+	 * @param  newPath 新的文件路经
+	 */
 	"mv_file": function(oldPath, newPath) {
+		const File = plus.android.importClass('java.io.File');
+		// 创建源文件和目标文件对象
+		const sourceFile = new File(oldPath);
+		const targetFile = new File(newPath);
 
-		return new Promise((resolve, reject) => {
-			plus.io.resolveLocalFileSystemURL(oldPath, (entry) => {
-					plus.io.resolveLocalFileSystemURL(newPath.substring(0, newPath.lastIndexOf(
-							'/') + 1),
-						(dirEntry) => {
-							entry.moveTo(dirEntry, newPath.substring(newPath.lastIndexOf('/') +
-									1),
-								(newEntry) => {
-									resolve(newEntry.toLocalURL());
-								},
-								(error) => {
-									reject('移动文件失败: ' + error.message);
-								}
-							);
-						},
-						(error) => {
-							reject('获取目标目录失败: ' + error.message);
-						}
-					);
-				},
-				(error) => {
-					reject('获取源文件失败: ' + error.message);
-				});
-		});
+		// 检查源文件是否存在
+		if (!sourceFile.exists()) {
+			console.error('源文件不存在：', oldPath);
+			return false;
+		}
+
+		// 检查目标路径的父目录是否存在，不存在则创建
+		const targetParent = targetFile.getParentFile();
+		if (!targetParent.exists()) {
+			// 递归创建父目录（mkdirs() 与 mkdir() 区别：前者支持多级目录）
+			const isDirCreated = targetParent.mkdirs();
+			if (!isDirCreated) {
+				console.error('目标目录创建失败：', targetParent.getAbsolutePath());
+				return false;
+			}
+		}
+
+		// 执行移动（renameTo() 方法）
+		const isMoved = sourceFile.renameTo(targetFile);
+		if (isMoved) {
+			console.log('文件移动成功：', oldPath, '→', newPath);
+		} else {
+			console.error('文件移动失败');
+		}
+
+		return isMoved;
+
 	},
+	/**
+	 * @param {String} path		下载文件存放的路径
+	 * @param {String} url		下载文件的url
+	 */
 	"downloadFile": function(path, url) {
 
 		const fileName = decodeURIComponent(url.substring(url.lastIndexOf('/') + 1));
@@ -245,7 +296,7 @@ const g = {
 						success: (saveRes) => {
 							this.delete_file(path + "/" + fileName)
 							this.mv_file(
-								saveRes.savedFilePath,
+								this.getRealPath(saveRes.savedFilePath),
 								path + "/" + fileName)
 							g.ShowText('下载成功!\n文件已保存:\n' + path + "/" +
 								fileName);
