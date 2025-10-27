@@ -28,14 +28,14 @@
 	// g.log(g.getRealPath("_download"))
 
 	// g.log(g.get_tks_path(g.pulic_tiku_dir))
-	
+
 	const tkgf_init = () => {
 		//初始化
 		g.get_storage_permission()
 		g.MkdirAll(g.pulic_tiku_dir)
 		g.MkdirAll(g.getTkDataDir())
-		
-		
+
+
 	}
 	tkgf_init()
 
@@ -67,25 +67,13 @@
 		g.ShowText("题库制作正在开发~")
 	}
 
-	function copyFile(fileEntry) {
-		plus.io.resolveLocalFileSystemURL(
-			"file://" + g.pulic_tiku_dir, // 替换为目标目录路径
-			function(targetDir) {
-				fileEntry.copyTo(
-					targetDir,
-					"new_file_name.text", // 新文件名，可自定义
-					function(newFile) {
-						console.log("文件复制成功，新路径：" + newFile.fullPath);
-					},
-					function(error) {
-						console.error("文件复制失败：" + error.message);
-					}
-				);
-			},
-			function(error) {
-				console.error("获取目标目录失败：" + error.message);
-			}
-		);
+
+
+
+	
+	
+	const click_test_btn = () => {
+		g.cp_file("/storage/emulated/0/000TiKu/aaa.jjj","/storage/emulated/0/000TiKu/aaa1.jjj")
 	}
 </script>
 

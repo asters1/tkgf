@@ -4,7 +4,7 @@ const g = {
 	"icon_index": 0,
 	"debug": true,
 	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
-
+	"exercise_model": 0,
 	"exercise_tk_obj": {},
 
 	"ShowText": function(text) {
@@ -106,7 +106,7 @@ const g = {
 				const dir = new File(Path);
 
 				if (dir.exists()) {
-					g.log("文件夹已存在！！")
+					g.log(Path + "-->文件夹已存在！！")
 					resolve(true);
 					return;
 				}
@@ -164,6 +164,33 @@ const g = {
 		}
 		return true;
 	},
+	"async_W_file": function(filePath, content) {
+		// g.ShowText("==")
+		// g.ShowText(filePath)
+		// g.ShowText("==")
+		// 文件不存在，先创建文件再写入
+		const dirPath = filePath.substring(0, filePath.lastIndexOf('/'));
+		const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+		// 获取沙箱目录路径
+		filePath = plus.io.convertLocalFileSystemURL(filePath);
+
+		plus.io.requestFileSystem(plus.io.PRIVATE_WWW, function(fs) {
+			fs.root.getFile(filePath, {
+				create: true
+			}, function(fileEntry) {
+				fileEntry.createWriter(function(writer) {
+					writer.onwriteend = function(e) {
+						console.log('写入成功 ');
+					};
+					writer.onerror = function(e) {
+						console.error('写入失败：' + e.toString());
+					};
+					writer.write(content);
+				});
+			});
+		});
+
+	},
 	/**
 	 * 读取文件
 	 * @param {String} path 文件路径
@@ -206,59 +233,26 @@ const g = {
 	/**
 	 * 异步读取文件（Android 平台，基于 Promise）
 	 * @param {string} path 文件路径（默认空字符串）
-	 * @param {string} charset 字符编码（默认 'utf-8'）
+	 
 	 * @returns {Promise} 返回 Promise 对象，成功时 resolve 读取的内容数组，失败时 reject 错误信息
 	 */
-	"async_R_file": function(path = '', charset = 'utf-8') {
-		// 返回 Promise 对象，在 executor 函数中执行异步操作
+	"async_R_file": function(filePath = '') {
 		return new Promise((resolve, reject) => {
-			const File = plus.android.importClass('java.io.File');
-			const InputStreamReader = plus.android.importClass('java.io.InputStreamReader');
-			const BufferedReader = plus.android.importClass('java.io.BufferedReader');
-			const FileInputStream = plus.android.importClass('java.io.FileInputStream');
+			// const filePath = '/storage/emulated/0/Android/data/io.dcloud.HBuilder/tiku/a.txt';
+			const fullPath = plus.io.convertLocalFileSystemURL(filePath);
 
-			let file = new File(path);
-			let inputStreamReader = null;
-			let bufferedReader = null;
-			let list = [];
-
-			try {
-				// 检查文件是否存在
-				if (!file.exists()) {
-					reject(new Error('文件不存在: ' + path)); // 文件不存在时拒绝
-					return;
-				}
-
-				// 读取文件内容
-				inputStreamReader = new InputStreamReader(new FileInputStream(file), charset);
-				bufferedReader = new BufferedReader(inputStreamReader);
-
-				let line = '';
-				while (null != (line = bufferedReader.readLine())) {
-					list.push(line);
-				}
-
-				// 关闭流
-				bufferedReader.close();
-				inputStreamReader.close();
-
-				// 读取成功， resolve 结果
-				resolve(list);
-
-			} catch (e) {
-				// 捕获异常，关闭流并 reject 错误
-				if (bufferedReader) {
-					try {
-						bufferedReader.close();
-					} catch (err) {}
-				}
-				if (inputStreamReader) {
-					try {
-						inputStreamReader.close();
-					} catch (err) {}
-				}
-				reject(e); // 错误信息传递给 catch
-			}
+			plus.io.resolveLocalFileSystemURL(fullPath, (entry) => {
+				entry.file((file) => {
+					const reader = new plus.io.FileReader();
+					reader.onloadend = (e) => {
+						resolve(e.target.result); // 返回内容
+					};
+					reader.onerror = (e) => {
+						reject(new Error('读取失败'));
+					};
+					reader.readAsText(file);
+				}, (error) => reject(error));
+			}, (error) => reject(error));
 		});
 	},
 	/**
@@ -373,6 +367,40 @@ const g = {
 
 		return isMoved;
 
+	},
+	"cp_file": function(oldPath, newPath) {
+		const Dir = newPath.substring(0, newPath.lastIndexOf('/'));
+		const fileName = decodeURIComponent(newPath.substring(newPath.lastIndexOf('/') + 1));
+		g.log(fileName)
+		plus.io.resolveLocalFileSystemURL(
+			"file://" + oldPath, // 替换为实际文件路径
+			function(entry) {
+				console.log("文件路径：" + entry.fullPath);
+				console.log("file://" + Dir)
+				// 进入下一步，拷贝文件
+				plus.io.resolveLocalFileSystemURL(
+					"file://" + Dir, // 替换为目标目录路径
+					function(targetDir) {
+						entry.copyTo(
+							targetDir,
+							fileName, // 新文件名，可自定义
+							function(newFile) {
+								console.log("文件复制成功，新路径：" + newFile.fullPath);
+							},
+							function(error) {
+								console.error("文件复制失败：" + error.message);
+							}
+						);
+					},
+					function(error) {
+						console.error("获取目标目录失败：" + error.message);
+					}
+				);
+			},
+			function(error) {
+				console.error("获取文件失败：" + error.message);
+			}
+		);
 	},
 	/**
 	 * @param {String} path		下载文件存放的路径

@@ -3,12 +3,88 @@
 		<view class="body_title">
 			{{g.exercise_tk_obj.name}}
 			<view class="update_time">
-				更新时间：2025-10-11
+				更新时间：{{ref_update_time}}
 			</view>
 		</view>
 		<view class="fgx"></view>
-		<view class="body_fenlei">{{g.exercise_tk_obj.name}}</view>
-		<view class="body_exercise">{{g.exercise_tk_obj.name}}</view>
+		<view class="body_fenlei">
+			<view class="class_icon" @click="">
+				<text class="icon-guanbi icon_sym"></text>
+				<text class="text">我的错题</text>
+			</view>
+			<view class="class_icon" @click="">
+				<text class="icon-shoucang icon_sym"></text>
+				<text class="text">我的收藏</text>
+			</view>
+			<view class="class_icon" @click="">
+				<text class="icon-a-009-knife icon_sym"></text>
+				<text class="text">我的斩题</text>
+			</view>
+			<view class="class_icon" @click="">
+				<text class="icon-dengji icon_sym"></text>
+				<text class="text">我的笔记</text>
+			</view>
+
+		</view>
+		<view class="body_exercise">
+			<view class="lianxi">练习模式</view>
+			<view class="zu">
+				<view class="lianxi_btn" @click="lianxi_btn(0)">
+					<view class="text1">
+						<text>顺序练习</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+				<view class="lianxi_btn" @click="lianxi_btn(1)">
+					<view class="text1">
+						<text>随机练习</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+			</view>
+			<view class="zu">
+				<view class="lianxi_btn" @click="lianxi_btn(2)">
+					<view class="text1">
+						<text>错题练习</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+				<view class="lianxi_btn" @click="lianxi_btn(3)">
+					<view class="text1">
+						<text>收藏练习</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+			</view>
+			<view class="zu">
+				<view class="lianxi_btn" @click="lianxi_btn(4)">
+					<view class="text1">
+						<text>题型练习</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+				<view class="lianxi_btn" @click="lianxi_btn(5)">
+					<view class="text1">
+						<text>模拟考试</text>
+						<text class="remark">1/299</text>
+					</view>
+					<text class="icon-dengji icon_sym"></text>
+
+				</view>
+			</view>
+
+
+		</view>
 
 
 
@@ -28,6 +104,13 @@
 	uni.setNavigationBarTitle({
 		title: g.exercise_tk_obj.name
 	})
+	const ref_update_time = ref("")
+	// const class_icon_tk = ref("icon_sym icon-fenlei")
+	// const class_text_tk = ref("text")
+
+
+
+
 
 	let startX = 0; // 滑动开始x轴的位置
 	let startY = 0; // 滑动开始y轴的位置
@@ -68,12 +151,41 @@
 		}
 		// console.log(moveY);
 	};
-	
+	const lianxi_btn = (index) => {
+
+		switch (index) {
+			case 0:
+				g.log("顺序练习")
+				g.log(g.exercise_tk_obj.value)
+				break;
+			case 1:
+				g.log("随机练习")
+				break;
+			case 2:
+				g.log("错题练习")
+				break;
+			case 3:
+				g.log("收藏练习")
+				break;
+			case 4:
+				g.log("题型练习")
+				break;
+			case 5:
+				g.log("模拟考试")
+				break;
+			default:
+				break;
+		}
+
+	}
+
 	//===========程序开始============
 	g.log(g.exercise_tk_obj)
-	let result = g.getFileModifyTime(g.exercise_tk_obj.value)
-	g.log(result)
-	g.log("=======")
+	// let result = g.getFileModifyTime(g.exercise_tk_obj.value)
+	ref_update_time.value = g.getFileModifyTime(g.exercise_tk_obj.value)
+	g.MkdirAll(g.getTkDataDir() + "/" + g.exercise_tk_obj.name)
+	// g.async_W_file("/storage/emulated/0/000TiKu/aaa.jjj", "aaaaa")
+	// // g.log("=======")
 
 
 	onShow(() => {
@@ -83,11 +195,55 @@
 </script>
 
 <style>
+	@import "../../static/icon1.css";
+	/* @import "../../static/gobal.css"; */
+
 	.body {
 		display: flex;
 		flex-direction: column;
 		height: 100%;
 		background-color: #fff;
+	}
+
+	.icon_sym {
+		display: inline-block;
+		width: 25px;
+		height: 25px;
+		color: red;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%;
+		/* margin-left: 20px; */
+		/* padding: 40px; */
+	}
+
+	.text {
+		padding-top: 5px;
+		font-size: 14px;
+
+	}
+
+	.class_icon {
+
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-around;
+		align-items: center;
+		color: #666;
+		text-decoration: none;
+		font-size: 20px;
+		padding: 8px 0;
+		transition: all 0.2s;
+		/* border-top: 1px solid #777; */
+	}
+
+	.lianxi {
+		margin-top: 20px;
+		margin-left: 20px;
+		margin-bottom: 20px;
+		font-size: 20px;
+
 	}
 
 	.body_title {
@@ -105,6 +261,48 @@
 	.fgx {
 		padding-top: 10px;
 		border-bottom: 1px solid #777;
+
+	}
+
+	.body_fenlei {
+		display: flex;
+		margin-top: 15px;
+	}
+
+	.text1 {
+		display: flex;
+		flex-direction: column;
+
+	}
+
+	.lianxi_btn {
+		padding: 5px 5px 5px 10px;
+		/* padding-left: 20px;
+		padding-right: 20px; */
+		background-color: #eee;
+		display: flex;
+		/* 关键：两端对齐，中间元素自动分配空间 */
+		justify-content: space-between;
+		border-radius: 8px;
+		flex: 1;
+		/* 水平内容居中 */
+		/* 	  justify-content: center; */
+		/* 垂直内容居中 */
+		align-items: center;
+		margin-right: 10px;
+	}
+
+
+	.remark {
+		margin-top: 10px;
+		color: #777;
+	}
+
+	.zu {
+		display: flex;
+		justify-content: space-between;
+
+		margin: 10px 15px;
 
 	}
 </style>
