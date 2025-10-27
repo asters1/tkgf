@@ -6,7 +6,7 @@ const g = {
 	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
 	"exercise_model": 0,
 	"exercise_tk_obj": {},
-
+	"tk_obj": {},
 	"ShowText": function(text) {
 		console.log(text)
 		uni.showToast({
@@ -368,10 +368,24 @@ const g = {
 		return isMoved;
 
 	},
+	/**
+	 * @param {String} oldPath
+	 * @param {String} newPath			如果只传入路径，请不要在最后加"/"
+	 */
 	"cp_file": function(oldPath, newPath) {
-		const Dir = newPath.substring(0, newPath.lastIndexOf('/'));
-		const fileName = decodeURIComponent(newPath.substring(newPath.lastIndexOf('/') + 1));
-		g.log(fileName)
+		g.log("复制文件")
+		let fileName = ""
+		let Dir = newPath.substring(0, newPath.lastIndexOf('/'));
+		const oldfileName = decodeURIComponent(oldPath.substring(oldPath.lastIndexOf('/') + 1));
+		const newfileName = decodeURIComponent(newPath.substring(newPath.lastIndexOf('/') + 1));
+		if (newfileName.includes(".")) {
+			fileName = newfileName
+		} else {
+			Dir = newPath + "/"
+			fileName = oldfileName
+
+		}
+
 		plus.io.resolveLocalFileSystemURL(
 			"file://" + oldPath, // 替换为实际文件路径
 			function(entry) {
@@ -401,6 +415,18 @@ const g = {
 				console.error("获取文件失败：" + error.message);
 			}
 		);
+	},
+	"file_exists": function(filePath) {
+		const File = plus.android.importClass('java.io.File');
+		const dir = new File(filePath);
+
+		if (dir.exists()) {
+			g.log(filePath + "-->文件已存在！！")
+			return true;
+		} else {
+			g.log(filePath + "-->文件不存在！！")
+			return false;
+		}
 	},
 	/**
 	 * @param {String} path		下载文件存放的路径

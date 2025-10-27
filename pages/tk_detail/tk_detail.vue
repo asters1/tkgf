@@ -32,7 +32,7 @@
 				<view class="lianxi_btn" @click="lianxi_btn(0)">
 					<view class="text1">
 						<text>顺序练习</text>
-						<text class="remark">1/299</text>
+						<text class="remark">{{exercise_index}}/{{exercise_total}}</text>
 					</view>
 					<text class="icon-dengji icon_sym"></text>
 
@@ -105,6 +105,9 @@
 		title: g.exercise_tk_obj.name
 	})
 	const ref_update_time = ref("")
+
+	const exercise_total = ref(0)
+	const exercise_index = ref(0)
 	// const class_icon_tk = ref("icon_sym icon-fenlei")
 	// const class_text_tk = ref("text")
 
@@ -184,10 +187,20 @@
 	// let result = g.getFileModifyTime(g.exercise_tk_obj.value)
 	ref_update_time.value = g.getFileModifyTime(g.exercise_tk_obj.value)
 	g.MkdirAll(g.getTkDataDir() + "/" + g.exercise_tk_obj.name)
-	// g.async_W_file("/storage/emulated/0/000TiKu/aaa.jjj", "aaaaa")
-	// // g.log("=======")
-
-
+	if (!g.file_exists(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj.name + ".json")) {
+		g.cp_file(g.exercise_tk_obj.value, g.getTkDataDir() + "/" + g.exercise_tk_obj.name)
+	}
+	g.async_R_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj.name + ".json").then((
+		res) => {
+		try {
+			g.tk_obj = JSON.parse(res)
+			exercise_total.value = g.tk_obj.length
+			exercise_index.value = 1
+		} catch (e) {
+			g.log(e.message)
+			g.ShowText("解析题库失败！！")
+		}
+	})
 	onShow(() => {
 
 
