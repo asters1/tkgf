@@ -6,7 +6,8 @@ const g = {
 	"pulic_tiku_dir": "/storage/emulated/0/000TiKu",
 	"exercise_model": 0,
 	"exercise_tk_obj": {},
-	"tk_obj": {},
+	"tk_obj": [],
+	"exercise_index":1,
 	"ShowText": function(text) {
 		console.log(text)
 		uni.showToast({

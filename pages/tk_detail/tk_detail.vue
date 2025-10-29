@@ -34,7 +34,7 @@
 						<text>顺序练习</text>
 						<text class="remark">{{exercise_index}}/{{exercise_total}}</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-shuzishunxu icon_sym_btn"></text>
 
 				</view>
 				<view class="lianxi_btn" @click="lianxi_btn(1)">
@@ -42,7 +42,7 @@
 						<text>随机练习</text>
 						<text class="remark">1/299</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-suiji icon_sym_btn"></text>
 
 				</view>
 			</view>
@@ -52,7 +52,7 @@
 						<text>错题练习</text>
 						<text class="remark">1/299</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-cuotiben icon_sym_btn"></text>
 
 				</view>
 				<view class="lianxi_btn" @click="lianxi_btn(3)">
@@ -60,7 +60,7 @@
 						<text>收藏练习</text>
 						<text class="remark">1/299</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-shoucangben icon_sym_btn"></text>
 
 				</view>
 			</view>
@@ -70,7 +70,7 @@
 						<text>题型练习</text>
 						<text class="remark">1/299</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-ic_tixing_tikuxuanti icon_sym_btn"></text>
 
 				</view>
 				<view class="lianxi_btn" @click="lianxi_btn(5)">
@@ -78,7 +78,7 @@
 						<text>模拟考试</text>
 						<text class="remark">1/299</text>
 					</view>
-					<text class="icon-dengji icon_sym"></text>
+					<text class="icon-kaoshi icon_sym_btn"></text>
 
 				</view>
 			</view>
@@ -187,20 +187,43 @@
 	// let result = g.getFileModifyTime(g.exercise_tk_obj.value)
 	ref_update_time.value = g.getFileModifyTime(g.exercise_tk_obj.value)
 	g.MkdirAll(g.getTkDataDir() + "/" + g.exercise_tk_obj.name)
+	//判断题库是否存在
 	if (!g.file_exists(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj.name + ".json")) {
 		g.cp_file(g.exercise_tk_obj.value, g.getTkDataDir() + "/" + g.exercise_tk_obj.name)
 	}
-	g.async_R_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj.name + ".json").then((
-		res) => {
+	//判断tkgf.continue是否存在
+	if (g.file_exists(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/tkgf.continue")) {
 		try {
-			g.tk_obj = JSON.parse(res)
-			exercise_total.value = g.tk_obj.length
-			exercise_index.value = 1
+			g.async_R_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/tkgf.continue").then((res) => {
+				let tkgf_continue = JSON.parse(res)
+				exercise_total.value=tkgf_continue.exercise_total
+				exercise_index.value=tkgf_continue.exercise_index
+							})
 		} catch (e) {
 			g.log(e.message)
-			g.ShowText("解析题库失败！！")
+			g.ShowText("解析tkgf.continue失败！！")
 		}
-	})
+	} else {
+		g.async_R_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj.name + ".json").then((
+			res) => {
+			try {
+				g.tk_obj = JSON.parse(res)
+				exercise_total.value = g.tk_obj.length
+				exercise_index.value = g.exercise_index
+				let tkgf_continue = {}
+				tkgf_continue.exercise_total = g.tk_obj.length
+				tkgf_continue.exercise_index = g.exercise_index
+				// console.log(g.file_exists(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/tkgf.continue"))
+				g.async_W_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/tkgf.continue",
+					JSON.stringify(tkgf_continue))
+
+			} catch (e) {
+				g.log(e.message)
+				g.ShowText("解析题库失败！！")
+			}
+		})
+	}
+
 	onShow(() => {
 
 
@@ -229,7 +252,17 @@
 		/* margin-left: 20px; */
 		/* padding: 40px; */
 	}
-
+	.icon_sym_btn {
+		display: inline-block;
+		width: 30px;
+		height: 30px;
+		color: red;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%;
+		/* margin-left: 20px; */
+		/* padding: 40px; */
+	}
 	.text {
 		padding-top: 5px;
 		font-size: 14px;
