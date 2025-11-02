@@ -4,7 +4,7 @@
 		<view class="custom-nav" :style="{ paddingTop: statusBarHeight + 'px' }">
 			<!-- 左侧返回按钮 -->
 			<view class="nav-left" @click="handleBack">
-				<text v-if="canBack">{{"←"}}</text>
+				<text class="icon-fanhui1 icon_sym"></text>
 			</view>
 
 			<!-- 中间标题 -->
@@ -15,7 +15,7 @@
 
 			<!-- 右侧操作区（示例：添加按钮） -->
 			<view class="nav-right" @click="handleRightClick">
-				<text>添加</text>
+				<text class="icon-wodeyizhan icon_sym_zhanti"></text>
 			</view>
 		</view>
 
@@ -71,11 +71,37 @@
 </script>
 
 <style scoped>
+	@import "../../static/icon.css";
+
+	.icon_sym {
+		display: inline-block;
+		width: 20px;
+		height: 20px;
+		color: red;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%;
+		/* margin-left: 20px; */
+		/* padding: 40px; */
+	}
+
+	.icon_sym_zhanti {
+		display: inline-block;
+		width: 27px;
+		height: 27px;
+		color: red;
+		background-repeat: no-repeat;
+		background-position: center;
+		background-size: 100%;
+		/* margin-left: 20px; */
+
+	}
+
 	/* 页面容器 */
 	.head1 {
 
 		min-height: 100vh;
-		background-color: #f5f5f5;
+		/* background-color: #eee; */
 
 	}
 
@@ -83,11 +109,12 @@
 	.custom-nav {
 		display: flex;
 		align-items: center;
-		height: 44px;
+		height: 64px;
 		/* 标题栏主体高度（不含状态栏） */
-		background-color: #fff;
+		background-color: #f8f8f8;
 		border-bottom: 1px solid #eee;
 		justify-content: space-between;
+		/* padding-bottom: 20px; */
 	}
 
 	/* 左侧返回按钮区域 */
@@ -135,8 +162,9 @@
 	/* 页面内容区域（避开标题栏高度） */
 	.body {
 		/* 状态栏高度 + 标题栏主体高度（44px） */
-		padding-top: calc(var(--status-bar-height) + 44px);
-		padding: calc(var(--status-bar-height) + 44px) 16px 16px;
+		/* padding-top: calc(var(--status-bar-height) + 10px); */
+		/* padding: calc(var(--status-bar-height) + 5px) 16px 16px; */
+		height: 1000px;
 	}
 
 	.pulic_text {
