@@ -40,7 +40,7 @@
 				<view class="lianxi_btn" @click="lianxi_btn(1)">
 					<view class="text1">
 						<text>随机练习</text>
-						<text class="remark">1/299</text>
+						<text class="remark">无尽随机...</text>
 					</view>
 					<text class="icon-suiji icon_sym_btn"></text>
 
@@ -114,7 +114,6 @@
 
 
 
-
 	let startX = 0; // 滑动开始x轴的位置
 	let startY = 0; // 滑动开始y轴的位置
 	let moveX = 0; // 滑动X轴的位置
@@ -143,13 +142,13 @@
 		if (moveX > 80) {
 			g.log("返回上一级")
 			uni.navigateBack({
-				delta: 1 // delta=1 表示返回上一页（默认值，可省略）s
+				delta: 1 // delta=1 表示返回上一页（默认值，可省略）
 			});
 
 		} else if (moveX < -80) {
 			g.log("返回上一级")
 			uni.navigateBack({
-				delta: 1 // delta=1 表示返回上一页（默认值，可省略）s
+				delta: 1 // delta=1 表示返回上一页（默认值，可省略）
 			});
 		}
 		// console.log(moveY);
@@ -160,9 +159,15 @@
 			case 0:
 				g.log("顺序练习")
 				g.log(g.exercise_tk_obj.value)
+				uni.navigateTo({
+					url: '/pages/exercise/exercise'
+				});
 				break;
 			case 1:
 				g.log("随机练习")
+				uni.navigateTo({
+					url: '/pages/exercise/exercise'
+				});
 				break;
 			case 2:
 				g.log("错题练习")
@@ -196,9 +201,9 @@
 		try {
 			g.async_R_file(g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/tkgf.continue").then((res) => {
 				let tkgf_continue = JSON.parse(res)
-				exercise_total.value=tkgf_continue.exercise_total
-				exercise_index.value=tkgf_continue.exercise_index
-							})
+				exercise_total.value = tkgf_continue.exercise_total
+				exercise_index.value = tkgf_continue.exercise_index
+			})
 		} catch (e) {
 			g.log(e.message)
 			g.ShowText("解析tkgf.continue失败！！")
@@ -252,6 +257,7 @@
 		/* margin-left: 20px; */
 		/* padding: 40px; */
 	}
+
 	.icon_sym_btn {
 		display: inline-block;
 		width: 30px;
@@ -263,6 +269,7 @@
 		/* margin-left: 20px; */
 		/* padding: 40px; */
 	}
+
 	.text {
 		padding-top: 5px;
 		font-size: 14px;
