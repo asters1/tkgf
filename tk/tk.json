@@ -1,7 +1,4 @@
-{
-	"name": "题库模板",
-	"update_time": "2025-10-24",
-	"data": [{
+ [{
 		
 			"id": "1",
 			
@@ -113,4 +110,3 @@
 			"remove_question": false
 		}
 	]
-}

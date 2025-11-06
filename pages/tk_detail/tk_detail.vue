@@ -32,7 +32,7 @@
 				<view class="lianxi_btn" @click="lianxi_btn(0)">
 					<view class="text1">
 						<text>顺序练习</text>
-						<text class="remark">{{exercise_index}}/{{exercise_total}}</text>
+						<text class="remark">{{exercise_index+1}}/{{exercise_total}}</text>
 					</view>
 					<text class="icon-shuzishunxu icon_sym_btn"></text>
 
@@ -203,6 +203,9 @@
 				let tkgf_continue = JSON.parse(res)
 				exercise_total.value = tkgf_continue.exercise_total
 				exercise_index.value = tkgf_continue.exercise_index
+				g.exercise_index = tkgf_continue.exercise_index
+				g.exercise_tk_obj.value = g.getTkDataDir() + "/" + g.exercise_tk_obj.name + "/" + g.exercise_tk_obj
+					.name + ".json"
 			})
 		} catch (e) {
 			g.log(e.message)
@@ -230,8 +233,9 @@
 	}
 
 	onShow(() => {
-
-
+		g.log(exercise_index.value)
+		g.log(g.exercise_index)
+		exercise_index.value = g.exercise_index
 	})
 </script>
 
