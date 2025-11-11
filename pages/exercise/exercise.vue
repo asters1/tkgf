@@ -34,11 +34,13 @@
 				<view v-for="(item, index) in timu_obj.options" :key="item" class="options" :value="item.value"
 					@click="itemClick(index)">
 
-					<view class="option_any_icon" :class="{ select_item_icon:answer_list.includes(item.Key)}">
+					<view class="option_any_icon"
+						:class="{ select_item_icon:answer_list.includes(item.Key),option_any_icon_false:item.Key==='✕',option_any_icon_true:item.Key==='✓'}">
 						{{item.Key}}
 
 					</view>
-					<view class="option_any_text" :class="{ select_item_text:answer_list.includes(item.Key)}">
+					<view class="option_any_text"
+						:class="{ select_item_text:answer_list.includes(item.Key),option_any_text_false:item.Key==='✕',option_any_text_true:item.Key==='✓'}">
 						{{item.Value}}
 					</view>
 
@@ -48,17 +50,23 @@
 				<view v-for="(item, index) in timu_obj.options" :key="item" class="options" :value="item.value"
 					@click="itemClick(index)">
 
-					<view class="option_one_icon" :class="{ select_item_icon: body1_activeId ===index && not_click}">
+					<view class="option_one_icon"
+						:class="{ select_item_icon: body1_activeId ===index && not_click,option_one_icon_false:item.Key==='✕',option_one_icon_true:item.Key==='✓'}">
 						{{item.Key}}
 
 					</view>
-					<view class="option_one_text" :class="{ select_item_text: body1_activeId ===index && not_click }">
+					<view class="option_one_text"
+						:class="{ select_item_text: body1_activeId ===index && not_click ,option_one_text_false:item.Key==='✕',option_one_text_true:item.Key==='✓'}">
 						{{item.Value}}
 					</view>
 
 				</view>
 			</view>
-
+			<view class="btns">
+				<view class="btn" @click="last_tk">上一题</view>
+				<view class="btn" @click="submit_answer">提交答案</view>
+				<view class="btn" @click="next_tk">下一题</view>
+			</view>
 
 		</view>
 	</view>
@@ -87,6 +95,9 @@
 	const auto_next_switch = ref(true)
 	const not_click = ref(false)
 	const answer_list = ref([])
+	const not_submit = ref(true)
+
+
 	onLoad(() => {
 		const systemInfo = uni.getSystemInfoSync()
 		statusBarHeight.value = systemInfo.statusBarHeight
@@ -122,35 +133,13 @@
 		if (moveX > 60) {
 			g.log("上一题")
 			moveX = 0
-			g.exercise_index = g.exercise_index - 1
-			g.log(g.exercise_index)
-			if (g.exercise_index < 0) {
-				g.exercise_index = 0
-				g.ShowText("已经是第一题了~")
-			} else {
-				answer_list.value = []
-				body1_activeId.value = -1
-				update_data(tk_obj.value[g.exercise_index])
-				not_click.value = false
-			}
+			last_tk()
 		} else if (moveX < -60) {
 
 			g.log("下一题")
 			moveX = 0
-			g.exercise_index = g.exercise_index + 1
-			g.log(g.exercise_index)
-			if (g.exercise_index == tk_obj.value.length) {
-				g.exercise_index = g.exercise_index - 1
-				g.ShowText("已经是最后一题了~")
-			} else {
-				body1_activeId.value = -1
-				answer_list.value = []
-				update_data(tk_obj.value[g.exercise_index])
-				not_click.value = false
-			}
 
-			update_data(tk_obj.value[g.exercise_index])
-			not_click.value = false
+			next_tk()
 		}
 		// console.log(moveY);
 	};
@@ -173,29 +162,113 @@
 			icon: 'none'
 		})
 	}
+	const last_tk = () => {
+		g.exercise_index = g.exercise_index - 1
+		// g.log(g.exercise_index)
+		if (g.exercise_index < 0) {
+			g.exercise_index = 0
+			g.ShowText("已经是第一题了~")
+		} else {
+			not_submit.value = true
+			answer_list.value = []
+			body1_activeId.value = -1
+			g.log(tk_obj.value[g.exercise_index])
+			update_data(tk_obj.value[g.exercise_index])
+			not_click.value = false
+		}
 
+	}
+	const next_tk = () => {
+
+		g.log("下一题")
+		g.exercise_index = g.exercise_index + 1
+		// g.log(g.exercise_index)
+		if (g.exercise_index == tk_obj.value.length) {
+			g.exercise_index = g.exercise_index - 1
+			g.ShowText("已经是最后一题了~")
+		} else {
+			not_submit.value = true
+			body1_activeId.value = -1
+			answer_list.value = []
+			update_data(tk_obj.value[g.exercise_index])
+			not_click.value = false
+
+		}
+
+		update_data(tk_obj.value[g.exercise_index])
+		not_click.value = false
+
+
+	}
+	const check_answer = () => {
+		let your_answer = answer_list.value.join("")
+		let tiku_answer = timu_obj.value.answer
+		if (your_answer === tiku_answer) {
+			g.log("答案正确")
+			g.log("你的答案" + your_answer)
+			g.log("标准答案" + tiku_answer)
+			return true
+		} else {
+			g.log("答案错误")
+			g.log("你的答案" + your_answer)
+			g.log("标准答案" + tiku_answer)
+			return false
+		}
+
+	}
+	const submit_answer = () => {
+
+
+		if (not_submit.value) {
+
+
+			g.log(timu_obj.value)
+			if (answer_list.value == []) {
+
+			} else {
+				for (var i = 0; i < timu_obj.value.options.length; i++) {
+					if (timu_obj.value.answer.includes(timu_obj.value.options[i].Key)) {
+						timu_obj.value.options[i].Key = "✓"
+					}
+				}
+				for (var i = 0; i < timu_obj.value.options.length; i++) {
+					for (var j = 0; j < answer_list.value.length; j++) {
+						g.log(answer_list.value[j])
+						g.log(timu_obj.value.options[i])
+						if (answer_list.value[j] == timu_obj.value.options[i].Key) {
+							timu_obj.value.options[i].Key = "✕"
+						}
+					}
+				}
+				g.log(timu_obj.value)
+			}
+		}
+		not_submit.value = false
+		// check_answer()
+	}
 	const select_modle = (index) => {
 		select_index.value = index
 	}
 	const update_data = (t_obj) => {
-		g.log(t_obj)
-		if (t_obj.qtype === "1") {
+		let t_obj_str = JSON.stringify(t_obj)
+		const tt_obj = JSON.parse(t_obj_str)
+		if (tt_obj.qtype === "1") {
 			load_tk.value = true
 			timu_type_icon_text.value = "单选"
-			timu_obj.value = t_obj
-		} else if (t_obj.qtype === "2") {
+			timu_obj.value = tt_obj
+		} else if (tt_obj.qtype === "2") {
 			load_tk.value = true
 			timu_type_icon_text.value = "多选"
-			timu_obj.value = t_obj
-		} else if (t_obj.qtype === "3") {
+			timu_obj.value = tt_obj
+		} else if (tt_obj.qtype === "3") {
 			load_tk.value = true
 			timu_type_icon_text.value = "判断"
-			timu_obj.value = t_obj
-		} else if (t_obj.qtype === "4") {
+			timu_obj.value = tt_obj
+		} else if (tt_obj.qtype === "4") {
 			load_tk.value = true
 			timu_type_icon_text.value = "填空"
 			timu_obj.value = []
-		} else if (t_obj.qtype === "5") {
+		} else if (tt_obj.qtype === "5") {
 			load_tk.value = true
 			timu_type_icon_text.value = "简答"
 			timu_obj.value = []
@@ -232,35 +305,47 @@
 		return sortedArr;
 	};
 	const itemClick = async (id) => {
-
-		if (timu_obj.value.qtype == "2") {
-			answer_list.value = toggleStringItem(answer_list.value, timu_obj.value.options[id].Key)
+		if (not_submit.value) {
 
 
-		} else {
-			answer_list.value = []
-			answer_list.value.push(timu_obj.value.options[id].Key)
-		}
+			if (timu_obj.value.qtype == "2") {
+				answer_list.value = toggleStringItem(answer_list.value, timu_obj.value.options[id].Key)
 
-		g.log(answer_list.value)
-		g.log(timu_obj.value.qtype)
-		not_click.value = true
-		body1_activeId.value = id
-		if (timu_obj.value.options[id].Key === timu_obj.value.answer) {
 
-			if (auto_next_switch) {
-				// await sleep(500)
-				// g.exercise_index = g.exercise_index + 1
-				// body1_activeId.value = -1
-				// update_data(tk_obj.value[g.exercise_index])
-				// not_click.value = false
+			} else {
+				answer_list.value = []
+				answer_list.value.push(timu_obj.value.options[id].Key)
 			}
 
-		} else {
+
+			not_click.value = true
+			body1_activeId.value = id
+			if (timu_obj.value.options[id].Key === timu_obj.value.answer) {
+
+				if (auto_next_switch.value && check_answer()) {
+					await sleep(500)
+					g.exercise_index = g.exercise_index + 1
+					// g.log(g.exercise_index)
+					if (g.exercise_index == tk_obj.value.length) {
+						g.exercise_index = g.exercise_index - 1
+						g.ShowText("已经是最后一题了~")
+					} else {
+						not_submit.value = true
+						body1_activeId.value = -1
+						answer_list.value = []
+						update_data(tk_obj.value[g.exercise_index])
+						not_click.value = false
+
+					}
+
+					update_data(tk_obj.value[g.exercise_index])
+					not_click.value = false
+
+				}
+
+			}
 
 		}
-
-
 	}
 	// onshow
 </script>
@@ -434,11 +519,6 @@
 		/* background-color: #007aff; */
 	}
 
-	.option_one_icon_false {
-		border: 1px solid #fff;
-		background-color: #ff5b59;
-		color: #fff;
-	}
 
 	.option_one_icon_true {
 		border: 1px solid #fff;
@@ -446,12 +526,27 @@
 		color: #fff;
 	}
 
-	.option_one_text_false {
-		color: #000;
-	}
+
 
 	.option_one_text_true {
 		color: #04c292;
+	}
+
+
+
+	.option_any_icon_true {
+		border: 1px solid #fff;
+		background-color: #04c292;
+		color: #fff;
+	}
+
+
+	.option_any_text_true {
+		color: #04c292;
+	}
+
+	.option_any_text_false {
+		color: #ff5b59;
 	}
 
 	.option_any_icon_false {
@@ -460,17 +555,27 @@
 		color: #fff;
 	}
 
-	.option_any_icon_true {
+	.option_one_text_false {
+		color: #ff5b59;
+	}
+
+	.option_one_icon_false {
 		border: 1px solid #fff;
-		background-color: #04c292;
+		background-color: #ff5b59;
 		color: #fff;
 	}
 
-	.option_any_text_false {
-		color: #000;
+	.btns {
+		display: flex;
+		justify-content: space-between;
+		margin-top: 50px;
 	}
 
-	.option_any_text_true {
-		color: #04c292;
+	.btn {
+		padding: 10px;
+		border: 1px solid #eee;
+		border-radius: 10px;
+		background-color: #04c292;
+		color: #fff;
 	}
 </style>
